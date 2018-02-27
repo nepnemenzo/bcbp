@@ -1,0 +1,244 @@
+﻿
+@{
+    ViewBag.Title = "Stock-In Transactions List";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    h3 {
+        color: red;
+    }
+    /*.bootstrap-select ul.dropdown-menu li:first-child {
+    display: none !important;*/
+    /*}*/
+</style>
+
+<div class="row">
+    <div class="col-xs-6">
+        <h3 style="margin-top:0px">Stock-In Transactions List</h3>
+    </div>
+    <div class="col-xs-6">
+        <div class="row pull-right" style="margin-right:0px">
+            <div>
+                <button type="button" class="btn btn-success" id="btnInward" style="margin-left: 10px;"><span class="glyphicon glyphicon-plus"></span> Item Inward</button>
+                <button type="button" class="btn btn-warning" id="btnEdit" style="margin-left: 10px;"><span class="glyphicon glyphicon-pencil"></span> Edit</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- /. ROW  -->
+<hr style="margin-top: 10px;" />
+
+<div class="col-md-12">
+    <input type="hidden" id="forUpdate" name="forUpdate" />
+    <div id="divStockInTable">
+    </div>
+</div>
+
+<div class="modal fade" id="modalInwardOutward" role="dialog" data-backdrop="static" data-keyboard="false">
+    @Html.Partial("_TransactionModal")
+</div>
+
+@section scripts{
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('input').removeClass('form-control');
+            $('select').removeClass('form-control');
+
+            GenerateTable();
+            $('#tblStockIn').DataTable({
+                "aaSorting": [],
+            });
+        });
+
+        function GenerateTable() {
+            $('#modalLoad').modal("show");
+            $.ajax({
+                url: '@Url.Action("StockInListData", "InvTransactions")',
+                type: "GET",
+                success: function (result) {
+                    $('#modalLoad').modal("hide");
+                    if (result.status) {
+                        $('#divStockInTable').html(result.data);
+                    } else {
+                        $('#divStockInTable').html("<p style=\"text-align:center\">" + result.msg + "</p>");
+                    }
+                    $('.modal-backdrop').remove();
+                    $('#tblStockIn').DataTable({
+                        "aaSorting": [],
+                    });
+                },
+                error: function () {
+
+                }
+            });
+        }
+
+        $(document).on("click", "#tblStockIn tr", function (e) {
+
+            var arr = $('#tblStockIn').dataTable().fnGetData($(this));
+            var Id = arr[0];
+            $('#forUpdate').val(Id);
+            if ($(this).hasClass('active')) {
+                $(this).removeClass('active');
+                $('#forUpdate').val('');
+            } else {
+                $(this).addClass('active').siblings().removeClass('active');
+            }
+        });
+
+        $('#btnInward').on("click", function () {
+            $('#formInwardOutward')[0].reset();
+            $('#TranMode').val(1);
+            getItemList();
+            getTransactionLocation(1);
+        })
+
+        function getItemList() {
+            $('#modalLoad').modal("show");
+            $.ajax({
+                url: '@Url.Action("GetllProducts", "InvTransactions")',
+                type: "GET",
+                success: function (result) {
+                    if (result.code == 1) {
+                        $('#TranItemNumber').empty();
+                        $('#TranItemNumber').append($('<option selected value="0"> -- select item -- </option>'));
+                        $.each(result.data, function (i, item) {
+                            $('#TranItemNumber').append($('<option value="' + item.id + '" data-code="' + item.code + '" data-desc="' + item.description + '">' + item.name + '</option>'));
+                        });
+
+                        $('#TranItemNumber').selectpicker('refresh');
+
+                        $('#modalLoad').modal("hide");
+                        $('#modalInwardOutward').modal("show");
+                    } else {
+                        $('#modalLoad').modal("hide");
+                        swal({ title: "Warning!", text: "No Item Available!", type: "warning" });
+                    }
+
+                },
+                error: function (jqXHR, exception) {
+                    $('#modalLoad').modal("hide");
+                    alert('Uncaught Error.\n' + jqXHR.responseText);
+                }
+            });
+        }
+
+        //--------------------------Function for Transactions Location----------------------------------------------------------
+        function getTransactionLocation(type) {
+            $('#modalLoad').modal("show");
+            $.ajax({
+                url: '@Url.Action("TransactionLocation", "InvProduct")',
+                type: "POST",
+                data: { type: type, id: 0 },
+                success: function (result) {
+                    if (result.code == 1) {
+                        $('#TranLocation').empty();
+                        $.each(result.data, function (i, item) {
+                            $('#TranLocation').append($('<option>', {
+                                value: item.ID,
+                                text: item.Name
+                            }));
+                        });
+                        if (type == 1) {
+                            $('#TranMode').val(1);
+                            $('#hTransTitle').html("<span class=\"glyphicon glyphicon-flag\"></span> Transaction Inward");
+                        } else {
+                            $('#TranMode').val(2);
+                            $('#hTransTitle').html("<span class=\"glyphicon glyphicon-flag\"></span> Transaction Outward");
+                        }
+
+                        $('#TranLocation').selectpicker('refresh');
+                        $('#modalLoad').modal("hide");
+                        $('#modalInwardOutward').modal("show");
+                    } else {
+                        $('#modalLoad').modal("hide");
+                        swal({ title: "Warning!", text: "No Item Available!", type: "warning" });
+                    }
+
+                },
+                error: function (jqXHR, exception) {
+                    $('#modalLoad').modal("hide");
+                    alert('Uncaught Error.\n' + jqXHR.responseText);
+                }
+            });
+        }
+
+        $('#TranItemNumber').on('change', function () {
+            var selected = $(this).find('option:selected');
+            $('#ItemDesc').val(selected.data('desc'));
+            $('#ItemNumber').val(selected.data('code'));
+        })
+
+        //--------------------------Submit Inward or Outward Transactions----------------------------------------------------------
+        $("#formInwardOutward").on('submit', (function (e) {
+
+            if ($('#TranItemNumber').val() == 0) {
+                swal({ title: "Warning!", text: "Please select item!", type: "warning" });
+                $('#TranItemNumber').focus();
+                return false;
+            }
+            if ($('#TranInwards').val() == "") {
+                swal({ title: "Warning!", text: "Quantity is required!", type: "warning" });
+                $('#TranInwards').focus();
+                return false;
+            }
+            e.preventDefault();
+            $('#modalInwardOutward').modal("hide");
+            $('#modalLoad').modal("show");
+            $.ajax({
+                url: $(this).attr('action'),
+                type: $(this).attr('method'),
+                data: new FormData(this),
+                contentType: false,
+                cache: false,
+                processData: false,
+                success: function (data) {
+                    $('#modalLoad').modal("hide");
+                    if (data.status) {
+                        if (data.code == 1) {
+                            swal({ title: "Success!", text: data.msg, type: "success" });
+                            GenerateTable();
+                        }
+                    } else {
+                        swal({ title: "Warning!", text: "Something went wrong!", type: "warning" });
+                    }
+                },
+                error: function (jqXHR, exception) {
+                    $('#modalLoad').modal("hide");
+                    var errmsg = '';
+                    if (jqXHR.status === 0) {
+                        errmsg = 'Not connect.\n Verify Network.';
+                        alert(errmsg);
+                    } else if (jqXHR.status == 404) {
+                        errmsg = 'Requested page not found. [404]';
+                        alert(errmsg);
+                    } else if (jqXHR.status == 500) {
+                        errmsg = 'Internal Server Error [500].';
+                        alert(errmsg);
+                    } else if (exception === 'parsererror') {
+                        errmsg = 'Requested JSON parse failed.';
+                        alert(errmsg);
+                    } else if (exception === 'timeout') {
+                        errmsg = 'Time out error.';
+                        alert(errmsg);
+                    } else if (exception === 'abort') {
+                        errmsg = 'Ajax request aborted.';
+                        alert(errmsg);
+                    } else {
+                        errmsg = 'Uncaught Error.\n' + jqXHR.responseText;
+                        alert(errmsg);
+                    }
+                }
+            });
+        }));
+
+        //$(document).on("dblclick", "#ProductTable > tbody > tr", function (e) {
+        //    var id = $(this).attr('id')
+        //    $('#modalLoad').modal("show");
+        //    window.location = "/product/transactions/" + id;
+        //});
+
+    </script>
+}

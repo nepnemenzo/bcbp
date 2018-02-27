@@ -1,0 +1,35 @@
+﻿@model IEnumerable<ErpOnline.Models.UserIfo>
+
+<table id="UserTable" class="table table-bordered table-hover table-responsive table-striped" style="border:0px;">
+    <thead>
+        <tr>
+            <th width="100">ID</th>
+            <th>Name </th>
+            <th>User name</th>
+            <th>Access Rights </th>
+            <th>Status</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+            {
+            <tr data-id="@Html.DisplayFor(modelItem => item.UserNr)">
+                <td>
+                    @Html.DisplayFor(modelItem => item.UserNr)
+                </td>
+                <td>
+                    @item.FName &nbsp;&nbsp; @item.LName
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.UserName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.AccessRights)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.loginStatus)
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

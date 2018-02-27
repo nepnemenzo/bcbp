@@ -1,0 +1,262 @@
+﻿
+@{
+    ViewBag.Title = "Unit list";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    h3 {
+        color: red;
+    }
+</style>
+<div class="row">
+    <div class="col-xs-6">
+        <h3 style="margin-top:0px">Product Unit</h3>
+    </div>
+    <div class="col-xs-6">
+        <div class="row pull-right" style="margin-right:0px">
+            <div>
+                <button type="button" class="btn btn-success" id="btnAdd" style="margin-left: 10px;"><span class="glyphicon glyphicon-plus"></span> Add</button>
+                <button type="button" class="btn btn-warning" id="btnEdit" style="margin-left: 10px;"><span class="glyphicon glyphicon-pencil"></span> Edit</button>
+                <button type="button" class="btn btn-danger" id="btnDelete" style="margin-left: 10px;"><span class="glyphicon glyphicon-trash"></span> Delete</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- /. ROW  -->
+<hr style="margin-top: 10px;" />
+
+<div class="col-md-12">
+    <div id="divUnitTable">
+    </div>
+</div>
+
+
+<div class="modal fade" id="AddEdit" role="dialog">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" style="margin-top: 0px; margin-right: 0px;">&times;</button>
+                <h4><span class="glyphicon glyphicon-flag"></span> Unit </h4>
+            </div>
+
+            <form action="@Url.Action("Create","InvUnit")" method="post" role="form" id="frmUnit">
+                <div class="panel-body" style="padding:20px 30px;">
+                    <div class="form-horizontal" style="margin-top:5px">
+                        <div class="col-md-12">
+                            @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+                            <div class="form-group">
+                                <label for="Code"><span class="glyphicon glyphicon-flag"></span> Unit Code</label>
+                                <input type="text" id="Code" name="Code" class="form-control" placeholder="Unit Code" required />
+                            </div>
+                            <div class="form-group">
+                                <label for="Description"><span class="glyphicon glyphicon-info-sign"></span> Description</label>
+                                <textarea class="form-control" rows="3" id="Description1" name="Description1" placeholder="Description1"></textarea>
+
+                            </div>
+
+                            <div class="form-group">
+                                <label for="Description"><span class="glyphicon glyphicon-info-sign"></span> Description</label>
+                                <textarea class="form-control" rows="3" id="Description2" name="Description2" placeholder="Description2"></textarea>
+                            </div>
+                            <input type="hidden" id="Number" name="Number" />
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <div class="pull-right">
+                        <button type="submit" class="btn btn-danger pull-left" onclick="this.form.reset()" data-dismiss="modal"><span class="glyphicon glyphicon-remove"></span> Cancel</button>
+                        <button type="submit" class="btn btn-success pull-left"><span class="glyphicon glyphicon-save"></span> Save</button>
+                    </div>
+
+                </div>
+                <div class="div-modal-foot"></div>
+            </form>
+
+        </div>
+    </div>
+</div>
+
+@section scripts{
+    <script type="text/javascript">
+        $(document).ready(function () {
+            GenerateTable();
+            $('#UnitTable').DataTable();
+        });
+
+        function GenerateTable() {
+            $('#modalLoad').modal("show");
+            $.ajax({
+                url: '@Url.Action("GetUnitList", "InvUnit")',
+                type: "GET",
+                success: function (result) {
+                    $('#modalLoad').modal("hide");
+                    if (result.status) {
+                        $('#divUnitTable').html(result.data);
+                    } else {
+                        $('#divUnitTable').html("<p style=\"text-align:center\">" + result.msg + "</p>");
+                    }
+                    $('.modal-backdrop').remove();
+                    $('#UnitTable').DataTable();
+                },
+                error: function () {
+
+                }
+            });
+        }
+
+        $(document).on("click", "#UnitTable tr", function (e) {
+
+            var arr = $('#UnitTable').dataTable().fnGetData($(this));
+            var Id = arr[0];
+            $('#Number').val(Id);
+            if ($(this).hasClass('active')) {
+                $(this).removeClass('active');
+                $('#Number').val(0);
+            } else {
+                $(this).addClass('active').siblings().removeClass('active');
+            }
+        });
+
+        $(document).on("dblclick", "#UnitTable tr", function (e) {
+            var arr = $('#UnitTable').dataTable().fnGetData($(this));
+            var id = arr[0];
+
+            $('#modalLoad').modal("show");
+            $('#lblTitle').html("<span class=\"glyphicon glyphicon-pencil\"></span> Edit Branch");
+            $.ajax({
+                url: '@Url.Action("GetItemLocationInfo", "InvItemLocation")',
+                data: { id: id },
+                type: "POST",
+                success: function (result) {
+                    $('#modalLoad').modal("hide");
+                    if (result.status) {
+                        $('#locName').val(result.data.locName);
+                        $('#locID').val(result.data.locID);
+                        $('#locDescription').val(result.data.locDescription);
+                    } else {
+                        swal({ title: "Warning!", text: "Something went wrong!", type: "warning" });
+                    }
+                    $('#AddEdit').modal("show");
+                },
+            });
+        });
+
+        $('#btnEdit').on("click", function () {
+            var id = $('#Number').val();
+            if (id == 0) {
+                swal({ title: "Update!", text: "Please select category to update!", type: "warning" });
+                return false;
+            }
+            $('#modalLoad').modal("show");
+            $.ajax({
+                url: '@Url.Action("GetUnitInfo", "InvUnit")',
+                data: { id: $('#Number').val() },
+                type: "POST",
+                success: function (result) {
+                    $('#modalLoad').modal("hide");
+                    if (result.status) {
+                        $('#Code').val(result.data.Code);
+                        $('#Number').val(result.data.Number);
+                        $('#Description1').val(result.data.Description1);
+                        $('#Description2').val(result.data.Description2);
+                    } else {
+                        swal({ title: "Warning!", text: "Something went wrong!", type: "warning" });
+                    }
+
+                    //for (var i in result.data) {
+                    //    $('#catName').val(result.data[i].catName);
+                    //    $('#catID').val(result.data[i].catID);
+                    //    $('#catDescription').val(result.data[i].catDescription);
+                    //}
+                    $('#AddEdit').modal("show");
+                },
+            });
+        })
+
+        $('#btnDelete').on("click", function () {
+            var id = $('#Number').val();
+            if (!id) {
+                swal({ title: "Delete!", text: "Please select Unit in the list to delete!", type: "warning" });
+                return false;
+            }
+            else {
+                $.ajax({
+                    url: '@Url.Action("Delete", "InvUnit")',
+                    type: "POST",
+                    data: { id: id },
+                    success: function (result) {
+                        $('#modalLoad').modal("hide");
+                        $('#Number').val("");
+                        if (result.status) {
+                            swal({ title: "Deleted!", text: "Successfuly deleted!", type: "success" });
+                            GenerateTable();
+                        } else {
+                            swal({ title: "Warning!", text: result.msg, type: "warning" });
+                        }
+                    },
+                });
+            }
+
+        });
+
+        $("#btnAdd").click(function () {
+            $('#frmUnit')[0].reset();
+            $('#TypeTable tr').removeClass('active');
+            $('#Number').val(0);
+            $('#AddEdit').modal("show");
+        });
+
+        $("#frmUnit").on('submit', (function (e) {
+            e.preventDefault();
+            $('#AddEdit').modal("hide");
+            $('#modalLoad').modal("show");
+            $.ajax({
+                url: $(this).attr('action'),
+                type: $(this).attr('method'),
+                data: new FormData(this),
+                contentType: false,
+                cache: false,
+                processData: false,
+                success: function (data) {
+                    $('#modalLoad').modal("hide");
+                    if (data.status) {
+                        swal({ title: "Success!", text: data.msg, type: "success" });
+                    } else {
+                        swal({ title: "Warning!", text: "Something went wrong!", type: "warning" });
+                    }
+                    GenerateTable();
+                },
+                error: function (jqXHR, exception) {
+                    $('#modalLoad').modal("hide");
+                    var errmsg = '';
+                    if (jqXHR.status === 0) {
+                        errmsg = 'Not connect.\n Verify Network.';
+                        alert(errmsg);
+                    } else if (jqXHR.status == 404) {
+                        errmsg = 'Requested page not found. [404]';
+                        alert(errmsg);
+                    } else if (jqXHR.status == 500) {
+                        errmsg = 'Internal Server Error [500].';
+                        alert(errmsg);
+                    } else if (exception === 'parsererror') {
+                        errmsg = 'Requested JSON parse failed.';
+                        alert(errmsg);
+                    } else if (exception === 'timeout') {
+                        errmsg = 'Time out error.';
+                        alert(errmsg);
+                    } else if (exception === 'abort') {
+                        errmsg = 'Ajax request aborted.';
+                        alert(errmsg);
+                    } else {
+                        errmsg = 'Uncaught Error.\n' + jqXHR.responseText;
+                        alert(errmsg);
+                    }
+                }
+            });
+        }));
+
+    </script>
+}

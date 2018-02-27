@@ -1,0 +1,152 @@
+﻿
+@model IEnumerable<bcbp_101.Models.bcbp.MemberModel>
+
+@{
+    ViewBag.Title = "Members";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    h3 {
+        color: red;
+    }
+</style>
+<div class="row">
+    <div class="col-xs-5">
+        <h3 style="margin-top:0px">Members</h3>
+    </div>
+    <div class="col-xs-7">
+        <div class="row pull-right" style="margin-right:0px">
+            <div>
+                <a type="button" class="btn btn-default link" href="@Url.Action("Create", "Member")" id="btnAdd" style="margin-left: 10px;"><span class="glyphicon glyphicon-plus"></span> Add</a>
+                <button type="button" class="btn btn-default" id="btnEdit" style="margin-left: 10px;"><span class="glyphicon glyphicon-pencil"></span> Edit</button>
+                @*<button type="button" class="btn btn-default" id="btnDelete" style="margin-left: 10px;"><span class="glyphicon glyphicon-trash"></span> Delete</button>*@
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- /. ROW  -->
+<hr style="margin-top: 10px;" />
+
+<div class="col-md-12">
+    <div id="divMemberTable">
+    </div>
+</div>
+
+<form>
+    <input type="hidden" id="memId" name="memId" />
+</form>
+
+
+
+
+
+@section scripts{
+    <script type="text/javascript">
+        $(document).ready(function () {
+            GenerateTable();
+             $('#memberDataTable').DataTable({
+                responsive: true
+            });
+
+            //new $.fn.dataTable.FixedHeader(table);
+        });
+
+        function GenerateTable() {
+            $('#modalLoad').modal("show");
+            $.ajax({
+                url: '@Url.Action("MemberList", "Member")',
+                type: "GET",
+                success: function (result) {
+                    $('#modalLoad').modal("hide");
+                    if (result.status) {
+                        $('#divMemberTable').html(result.data);
+                    } else {
+                        $('#divMemberTable').html("<p style=\"text-align:center\">" + result.msg + "</p>");
+                    }
+                    $('.modal-backdrop').remove();
+                    $('#memberDataTable').DataTable();
+                },
+                error: function () {
+                }
+            });
+        }
+
+
+        //--------------modify-------------
+        $('#btnEdit').on("click", function (e) {
+            $('#modalLoad').modal("show");
+            var Id = $('#memId').val();
+            if (!Id) {
+                swal({ title: "No member selected!", text: "Please select from the list!", type: "warning" });
+                $('#modalLoad').modal("hide");
+                //return false;
+            } else {
+                location.href = "/Member/Edit?Id=" + Id;
+                @*$.ajax({
+                    url: '@Url.Action("Edit", "Member")',
+                    type: "GET",
+                    data: { id: Id },
+                });*@
+            }
+         });
+        //------------------
+
+
+        $(document).on("click", "#divMemberTable tr", function (e) {
+            var arr = $('#memberDataTable').dataTable().fnGetData($(this));
+            var Id = arr[0];
+            $('#memId').val(Id);
+            var newId = $('#memId').val();
+            if ($(this).hasClass('active')) {
+                $(this).removeClass('active');
+                ////$('#bId').val(0);
+            } else {
+                $(this).addClass('active').siblings().removeClass('active');
+            }
+        });
+
+        $(document).on("dblclick", "#divMemberTable tr", function (e) {
+            var arr = $('#memberDataTable').dataTable().fnGetData($(this));
+            var Id = arr[0];
+            $('#memId').val(Id);
+            if (!Id) {
+                swal({ title: "No member selected!", text: "Please select from the list!", type: "warning" });
+                return false;
+            } else {
+                location.href = "/Member/Edit?Id=" + Id;
+            }
+
+            @*$.ajax({
+                url: '@Url.Action("Edit", "Member")',
+                type: "GET",
+                data: { id: Id },
+                success: function (result) {
+                    $('#modalLoad').modal("hide");
+                    if (result.status) {
+                        $('#branchId').val(result.data[0].branchID);
+                        $('#branchName').val(result.data[0].name);
+                        $('#branchAdd').val(result.data[0].address);
+                        $('#phone').val(result.data[0].phone);
+                        $('#phone2').val(result.data[0].phone2);
+
+                    } else {
+                        $('#divBranchTable').html("<p style=\"text-align:center\">" + result.msg + "</p>");
+                    }
+                },
+                error: function () {
+                    alert('test2');
+                }
+            });*@
+
+            //location.href = "InvBranch/Edit?id=" + Id;
+
+        });
+
+    
+
+
+
+    </script>
+}

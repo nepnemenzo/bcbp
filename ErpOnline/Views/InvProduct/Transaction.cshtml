@@ -1,0 +1,824 @@
+﻿@model ErpOnline.Models.InvProductViewModel
+
+@{
+    ViewBag.Title = ViewBag.Title;
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    string imgsrc = string.Empty;
+}
+<form action="@Url.Action("SubmitTransaction","InvProduct")" method="post" enctype="multipart/form-data" id="formProduct" class="form-horizontal" role="form">
+    @Html.AntiForgeryToken()
+    @Html.HiddenFor(m => m.transType, new { @id = "transType" })
+    @Html.HiddenFor(m => m.id)
+    <div class="row">
+        <div class="col-xs-6">
+            <h3 style="margin-top: 0px;">Product Information</h3>
+        </div>
+        <div class="col-xs-6">
+            <div class="row pull-right" style="margin-right: 0px;">
+                <div>
+                    <button class="btn btn-success" style="margin-left: 10px;"><span class="glyphicon glyphicon-floppy-disk"></span> Saved</button>
+                    <button type="button" class="btn btn-warning" id="btnCreatePO" style="margin-left: 10px;"><span class="glyphicon glyphicon-copyright-mark"></span> Copy</button>
+                    <a href="@Url.Action("Transaction","InvProduct")" class="btn btn-info link" style="margin-left: 10px;"><span class="glyphicon glyphicon-file"></span> New</a>
+                    <a href="@Url.Action("Index","InvProduct")" class="btn btn-danger link" style="margin-left: 10px;"><span class="glyphicon glyphicon-remove"></span> Cancel</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <input type="hidden" id="ID" name="ID" />
+    <div class="col-xs-12">
+        <div class="panel panel-info panel-body" style="padding-left: 0px;padding-right: 0px;margin-top: 5px;border-radius:0px;">
+            <!--01-->
+            <div class="col-xs-4">
+                <div class="form-group" style="display:none">
+                    <label class="control-label col-sm-4 text-left" for="">Product SKU</label>
+                    <div class="col-sm-4">
+                        @Html.TextBoxFor(m => m.productSKU)
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="control-label col-sm-4 text-left" for="Code">Product Code</label>
+                    <div class="col-sm-4">
+                        @Html.TextBoxFor(m => m.productCode, new { @class = "",@required= "required" })
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="control-label col-sm-4 text-left" for="Name">Product Name</label>
+                    <div class="col-sm-8">
+                        @Html.TextBoxFor(m => m.name, new { @class = "", @required = "required" })
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="control-label col-sm-4 text-left" for="Description">Description</label>
+                    <div class="col-sm-8">
+                        @Html.TextBoxFor(m => m.description, new { @class = "" })
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="control-label col-sm-4 text-left" for="Description2">Description 2</label>
+                    <div class="col-sm-8">
+                        @Html.TextAreaFor(m => m.description2, new { @class = "" })
+                    </div>
+                </div>
+            </div>
+            <!--02-->
+            <div class="col-xs-4">
+                <div class="form-group">
+                    <label class="control-label col-sm-4 text-left" for="Unit">Unit</label>
+                    <div class="col-sm-4">
+                        <select class="selectpicker" name="unit" id="drpunit" data-live-search="true" required>
+                            @foreach (var item in Model.ListUnit)
+                            {
+                                <option data-tokens="@item.Name" value="@item.ID">@item.Name</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="col-sm-4">
+                        <label id="lblUnit"></label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="control-label col-sm-4 text-left" for="Category">Category</label>
+                    <div class="col-sm-8">
+                        <select class="selectpicker" name="category" id="drpcategory" data-live-search="true" required>
+                            @foreach (var item in Model.ListCategory)
+                            {
+                                <option data-tokens="@item.Name" value="@item.ID">@item.Name</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="control-label col-sm-4 text-left" for="Type">Type</label>
+                    <div class="col-sm-8">
+                        <select class="selectpicker" name="type" id="drptype" data-live-search="true" required>
+                            @foreach (var item in Model.ListType)
+                            {
+                                <option data-tokens="@item.Name" value="@item.ID">@item.Name</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="control-label col-sm-4 text-left" for="Location">Location</label>
+                    <div class="col-sm-8">
+                        <input type="text" name="txtLocation" readonly>
+                        <input type="hidden" name="location">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="control-label col-sm-4 text-left" for="Brand">Brand</label>
+                    <div class="col-sm-8">
+                        <select class="selectpicker" name="brand" id="drpbrand" data-live-search="true" required>
+                            @foreach (var item in Model.ListBrand)
+                            {
+                                <option data-tokens="@item.Name" value="@item.ID">@item.Name</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <!--03-->
+            <div class="col-xs-4">
+                <div class="divImg" style="padding:10px;width: 267px;">
+                    <div style="height:140px;width: 243px;">
+                        @if (!string.IsNullOrEmpty(Model.itemPath))
+                        {
+                            imgsrc = Model.itemPath;
+                        }
+                        else
+                        {
+                            imgsrc = "no-image-yet.jpg";
+                        }
+                        <img id="previewing" src="~/Images/Items/@imgsrc" alt="" style="max-width: 100%; height: inherit;border-radius: 5px;" />
+                        @Html.HiddenFor(m => m.itemPath)
+                    </div>
+                    <div style="height: 25px;border: 1px solid #ccc;margin-top: 3px;border-radius: 2px;">
+                        <span>Upload image</span>
+                        <input type="file" id="myfile" name="upload" />
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="col-xs-12">
+            </div>
+            <!--001-->
+            <div class="col-xs-4">
+                <div class="col-xs-12" style="padding:0px">
+                    <h4>Stock Management</h4>
+                    <!--<hr style="margin-top: 0px;" />-->
+                </div>
+
+                <div class="form-group">
+                    <label class="control-label col-sm-4 text-left" for="Supplier">Supplier Name</label>
+                    <div class="col-sm-8">
+                        <select class="selectpicker" name="supplierId" id="drpsupplierId" data-live-search="true" required>
+                            @foreach (var item in Model.ListSupplierName)
+                            {
+                                <option data-tokens="@item.Name" value="@item.ID">@item.Name</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="control-label col-sm-4 text-left" for="ItemSupplierNumber">Item Number</label>
+                    <div class="col-sm-8">
+                        @Html.TextBoxFor(m => m.supplierItemNum, new { @class = "" })
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="control-label col-sm-4 text-left" for="pwd">Item Description</label>
+                    <div class="col-sm-8">
+                        @Html.TextBoxFor(m => m.supplierItemDesc, new { @class = "" })
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="control-label col-sm-4 text-left" for="pwd">Qty on hand</label>
+                    <div class="col-sm-4">
+                        @Html.TextBoxFor(m => m.qtyOnHand, "{0:n2}", new { @class = "", @type = "number", @readonly = "readonly" })
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="control-label col-sm-4 text-left" for="pwd">Qty on order</label>
+                    <div class="col-sm-4">
+                        @Html.TextBoxFor(m => m.qtyOnOrder, "{0:n2}", new { @class = "", @type = "number", @readonly = "readonly" })
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="control-label col-sm-4 text-left" for="pwd">Min. Stock</label>
+                    <div class="col-sm-4">
+                        @Html.TextBoxFor(m => m.minStock, "{0:n2}", new { @class = "", @type = "number", @onchange = "setTwoNumberDecimal(this)" })
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="control-label col-sm-4 text-left" for="pwd">Max. Stock</label>
+                    <div class="col-sm-4">
+                        @Html.TextBoxFor(m => m.maxStock, "{0:n2}", new { @class = "", @type = "number", @onchange = "setTwoNumberDecimal(this)" })
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="control-label col-sm-4 text-left" for="pwd">Min. Order</label>
+                    <div class="col-sm-4">
+                        @Html.TextBoxFor(m => m.minOrder, "{0:n2}", new { @class = "", @type = "number", @onchange = "setTwoNumberDecimal(this)" })
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="control-label col-sm-4 text-left" for="setItem"></label>
+                    <div class="col-sm-8">
+                        <div class="form-group" style="margin-left:0px;">
+                            <input type="checkbox" name="setItem" id="fancy-checkbox-default" autocomplete="off" />
+                            <div class="btn-group">
+                                <label for="fancy-checkbox-default" class="btn btn-default" style="padding: 2px 6px;">
+                                    <span class="glyphicon glyphicon-ok"></span>
+                                    <span> </span>
+                                </label>
+                                <label for="fancy-checkbox-default" class="btn btn-default active" style="padding: 2px 6px;">
+                                    Set Item
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="btnPO" onclick="createPO()">
+                    <span class="glyphicon glyphicon-list-alt img-spn"></span>
+                    <p class="p-po">Create P.O</p>
+                </div>
+            </div>
+
+            <!--002-->
+
+            <div class="col-xs-4">
+                <div class="col-xs-12" style="padding:0px;">
+                    <h4>Quantity Available</h4>
+                    <!--<hr style="margin-top: 0px;" />-->
+                </div>
+                <div class="form-group">
+                    <label class="control-label col-sm-4 text-left" for="pwd">Qty on hand</label>
+                    <div class="col-sm-8">
+                        <input type="number" id="AqtyOnhand", name="" value="@Model.qtyOnHand" readonly>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="control-label col-sm-4 text-left" for="pwd">Reserved Qty</label>
+                    <div class="col-sm-8">
+                        <input type="number" id="AqtyOnOrder" name="" value="@Model.qtyOnOrder" readonly>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="control-label col-sm-4 text-left" for="pwd">Available Item</label>
+                    <div class="col-sm-8">
+                        <input type="number" id="AqtyAvailable" name="" class="input1" readonly>
+                    </div>
+                </div>
+
+                <div class="col-xs-12" style="padding:0px;">
+                    <h4>Item Price</h4>
+                    <!--<hr style="margin-top: 0px;" />-->
+                </div>
+
+                <div class="form-group">
+                    <label class="control-label col-sm-4 text-left" for="purchasePrice">Purchase Price</label>
+                    <div class="col-sm-8">
+                        @Html.TextBoxFor(m => m.purchasePrice, "{0:n2}", new { @class = "", @type = "number", @onchange = "setTwoNumberDecimal(this)" })
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="control-label col-sm-4 text-left" for="finalPurchasePrice">Final Pur. Price</label>
+                    <div class="col-sm-8">
+                        @Html.TextBoxFor(m => m.finalPurchasePrice, "{0:n2}", new { @class = "", @type = "number", @onchange = "setTwoNumberDecimal(this)" })
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="control-label col-sm-4 text-left" for="sellingPrice">Selling Price</label>
+                    <div class="col-sm-8">
+                        @Html.TextBoxFor(m => m.sellingPrice, "{0:n2}", new { @class = "", @type = "number", @step="0.01", @onchange = "setTwoNumberDecimal(this)" })
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="control-label col-sm-4 text-left" for="discount">Discount</label>
+                    <div class="col-sm-4">
+                        @Html.TextBoxFor(m => m.discount, new { @class = "", @type = "number" })
+                    </div>
+                    <div class="col-sm-4">
+                        <label>%</label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="control-label col-sm-4 text-left" for="vat">VAT</label>
+                    <div class="col-sm-4">
+                        <select class="" id="vat" name="vat">
+                            <option value="12">01</option>
+                            <option value="12">02</option>
+                            <option value="12">03</option>
+                            <option value="12">04</option>
+                        </select>
+                    </div>
+                    <div class="col-sm-4">
+                        <label>12%</label>
+                    </div>
+                </div>
+            </div>
+
+            <!--003-->
+            <div class="col-xs-4">
+                <div class="col-xs-12" style="padding:0px;">
+                    <h4>Inventory</h4>
+                    <!--<hr style="margin-top: 0px;" />-->
+                </div>
+                <div class="form-group">
+                    <label class="control-label col-sm-4 text-left" for="pwd">Last count</label>
+                    <div class="col-sm-8">
+                        <input type="text" name="" readonly>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="control-label col-sm-4 text-left" for="pwd">Date</label>
+                    <div class="col-sm-8">
+                        <input type="text" name="" readonly>
+                    </div>
+                </div>
+                <div class="col-xs-12" style="padding:0px;">
+                    <h4>Other Info</h4>
+                    <!--<hr style="margin-top: 0px;" />-->
+                </div>
+                <div class="form-group">
+                    <label class="control-label col-sm-4 text-left" for="pwd">Date Entered</label>
+                    <div class="col-sm-8">
+                        @Html.TextBoxFor(m => m.EnteredDate, new { @class = "", @readonly = "readonly" })
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="control-label col-sm-4 text-left" for="pwd">Date Updated</label>
+                    <div class="col-sm-8">
+                        @Html.TextBoxFor(m => m.UpdateDate, new { @class = "", @readonly = "readonly" })
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="control-label col-sm-4 text-left" for="isActive"></label>
+                    <div class="col-sm-8">
+                        <div class="form-group" style="margin-left:0px;">
+                            <input type="checkbox" name="isActive" id="fancy-checkbox-default1" autocomplete="off" />
+                            <div class="btn-group">
+                                <label for="fancy-checkbox-default1" class="btn btn-default" style="padding: 2px 6px;">
+                                    <span class="glyphicon glyphicon-ok"></span>
+                                    <span> </span>
+                                </label>
+                                <label for="fancy-checkbox-default1" class="btn btn-default active" style="padding: 2px 6px;">
+                                    Inactive
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="control-label col-sm-4 text-left" for="cashItem"></label>
+                    <div class="col-sm-8">
+                        <div class="form-group" style="margin-left:0px;">
+                            <input type="checkbox" name="cashItem" id="fancy-checkbox-default2" autocomplete="off" />
+                            <div class="btn-group">
+                                <label for="fancy-checkbox-default2" class="btn btn-default" style="padding: 2px 6px;">
+                                    <span class="glyphicon glyphicon-ok"></span>
+                                    <span> </span>
+                                </label>
+                                <label for="fancy-checkbox-default2" class="btn btn-default active" style="padding: 2px 6px;">
+                                    Cash item
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xs-12">
+        <div class="tab">
+            <button type="button" class="tablinks active" onclick="tabs(event, 'tabReserveItem')">Reserve Item/s</button>
+            <button type="button" class="tablinks" onclick="tabs(event, 'Transactions')">Transactions</button>
+        </div>
+        <div id="tabReserveItem" class="tabcontent">
+            <div class="tab-pane">
+
+                <div class="div-tab">
+                    <div style="top: 15px;display:none" id="divReservedItems">
+                        <div id="divTableReserve" class="col-xs-7" style="padding-left: 10px;padding-top: 2px;overflow-y: scroll;height: 288px;">
+                            
+                        </div>
+                        <div class="col-xs-5">
+                            <div style="margin-top: 7px;">
+                                <div style="margin-bottom:10px;">
+                                    <button type="button" id="btnReserve" class="btn btn-success" style="width: 150px;"><i class="fa fa-plus"></i> Reserve Item</button>
+                                </div>
+                                <div>
+                                    <button type="button" id="btnReserve" class="btn btn-danger" style="width: 150px;"><i class="glyphicon glyphicon-remove"></i> Cancel Reserved</button>
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="Transactions" class="tabcontent">
+            <div class="div-tab">
+                <div id="divTransaction" style="display:none">
+                    <div id="divTableTransactions" class="col-xs-11" style="padding-left: 22px;padding-top: 2px;overflow-y: scroll;height: 288px;">
+                        
+                    </div>
+                    <div class="col-xs-1">
+                        <button type="button" id="btnInward" class="btn btn-success" style="font-size: 35px;margin-top: 10px;"><i class="fa fa-plus"></i></button>
+                        <br />
+                        <button type="button" id="btnOutward" class="btn btn-danger" style="font-size: 35px;margin-top: 10px;"><i class="fa fa-minus"></i></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</form>
+
+<!--Modal Inward-->
+<div class="modal fade" id="modalInwardOutward" role="dialog" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form id="formInwardOutward" action="@Url.Action("ItemTransaction","InvProduct")" method="post" class="form-horizontal" role="form">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" style="margin-top: 0px; margin-right: 0px;">&times;</button>
+                    <h4 id="hTransTitle"></h4>
+                </div>
+                <div class="panel-body">
+
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="TranMode" id="TranMode" value="1">
+                    <div class="div-border">
+                        <div class="form-group">
+                            <label class="control-label col-sm-4 text-left" for="pwd">Item Number</label>
+                            <div class="col-sm-8">
+                                <input type="text" id="TranItemNumber" value="@Model.productCode" readonly>
+                                <input type="hidden" name="TranItemNumber" value="@Model.id" readonly>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-sm-4 text-left" for="pwd">Description</label>
+                            <div class="col-sm-8">
+                                <input type="text" name="ItemDesc" id="ItemDesc" value="@Model.name" readonly>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-sm-4 text-left" for="pwd">Description Ext</label>
+                            <div class="col-sm-8">
+                                <input type="text" name="ItemDesc2" id="ItemDesc2" value="@Model.description" readonly>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="div-border">
+                        <div class="form-group">
+                            <label class="control-label col-sm-4 text-left" for="pwd">Quantity</label>
+                            <div class="col-sm-4">
+                                <input type="number" step="0.01" name="TranInwards" id="TranInwards" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-sm-4 text-left" for="pwd">Date</label>
+                            <div class="col-sm-8">
+                                <input type="date" id="TranDate" name="TranDate" value="@DateTime.Now.ToString("yyyy-MM-dd")" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-sm-4 text-left" for="pwd">Location</label>
+                            <div class="col-sm-8">
+                                <select class="selectpicker" data-live-search="true" name="TranLocation" id="TranLocation" required>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-sm-4 text-left" for="pwd">Reference Num</label>
+                            <div class="col-sm-8">
+                                <input type="text" name="TranOrderNumber" id="TranOrderNumber">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-sm-4 text-left" for="pwd">Comment</label>
+                            <div class="col-sm-8">
+                                <textarea name="TranComment" id="TranComment"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <div class="row pull-right" style="margin-right:0px">
+                        <button type="submit" class="btn btn-success" style="margin-left: 10px;"><span class="glyphicon glyphicon-check"></span> Save</button>
+                        <button type="button" class="btn btn-danger" data-dismiss="modal" style="margin-left: 10px;"><span class="glyphicon glyphicon-remove"></span> Close</button>
+                    </div>
+                </div>
+            </form>
+            <div class="div-modal-foot"></div>
+        </div>
+    </div>
+</div>
+
+@section scripts{
+    <script>
+        //--------------------------Upload Image----------------------------------------------------------
+        $(function () {
+            $("#myfile").change(function () {
+                $("#myfile").empty(); // To remove the previous error message
+                var file = this.files[0];
+                var imagefile = file.type;
+                var match = ["image/jpeg", "image/png", "image/jpg"];
+                if (!((imagefile == match[0]) || (imagefile == match[1]) || (imagefile == match[2]))) {
+                    $('#previewing').attr('src', '/Images/Items/no-image-yet.jpg');
+                    return false;
+                } else {
+                    var reader = new FileReader();
+                    reader.onload = imageIsLoaded;
+                    reader.readAsDataURL(this.files[0]);
+                }
+            });
+        });
+        function imageIsLoaded(e) {
+            $('#previewing').attr('src', e.target.result);
+        };
+        //--------------------------Initialize dependencies for loading----------------------------------------------------------
+        $(document).ready(function () {
+            $('input').removeClass('form-control');
+            $('select').removeClass('form-control');
+
+            if ($('#transType').val() != 0) {
+                $('#divReservedItems').show();
+                $('#divTransaction').show();
+                $('#productCode').prop('readonly', true);
+            }
+            $('#fancy-checkbox-default2').trigger('click');
+
+            $('#drpunit option[value="' +@Model.unit +'"]').attr('selected', 'selected');
+            $('#drpcategory option[value="' +@Model.category +'"]').attr('selected', 'selected');
+            $('#drptype option[value="' +@Model.type +'"]').attr('selected', 'selected');
+            $('#drpbrand option[value="' +@Model.brand +'"]').attr('selected', 'selected');
+            $('#drpsupplierId option[value="' +@Model.supplierId +'"]').attr('selected', 'selected');
+
+            if (@Model.setItem == 1) {
+                $('#fancy-checkbox-default').trigger('click');
+            }
+            if (@Model.isActive == 1) {
+                $('#fancy-checkbox-default1').trigger('click');
+            }
+            if (@Model.cashItem == 2) {
+                $('#fancy-checkbox-default2').trigger('click');
+            }
+
+            $('#tabReserveItem').show();
+            // Initialize functions
+            GenerateReseveTable();
+            GenerateTransactionsTable();
+            calculateItems();
+        })
+        //--------------------------Function for Reserve Table----------------------------------------------------------
+        function GenerateReseveTable() {
+            $.ajax({
+                url: '@Url.Action("ReserveList", "InvProduct")',
+                type: "POST",
+                data: {id:$('#id').val()},
+                success: function (result) {
+                    if (result.status) {
+                        $('#divTableReserve').html(result.data);
+                    } else {
+                        $('#divTableReserve').html("<p style=\"text-align:center\">" + result.msg + "</p>");
+                    }
+
+                    var oTable6 = $('#tblReserved').dataTable({
+                        "bFilter": false,
+                        "bLengthChange" : false,
+                        "aaSorting": [],
+                        "bInfo":false,
+                        paging:         false,
+                    });
+
+                    oTable6.fnDraw();
+                },
+                error: function (jqXHR, exception) {
+                    $('#modalLoad').modal("hide");
+                    alert('Uncaught Error.\n' + jqXHR.responseText);
+                }
+            });
+        }
+        //--------------------------Function for Transactions Table----------------------------------------------------------
+        function GenerateTransactionsTable() {
+            $.ajax({
+                url: '@Url.Action("TransactionsList", "InvProduct")',
+                type: "POST",
+                data: {id:$('#id').val()},
+                success: function (result) {
+                    if (result.status) {
+                        $('#divTableTransactions').html(result.data);
+                    } else {
+                        $('#divTableTransactions').html("<p style=\"text-align:center\">" + result.msg + "</p>");
+                    }
+                    var oTable7 = $('#tblTransaction').dataTable({
+                        "bFilter": false,
+                        "bLengthChange" : false,
+                        "aaSorting": [],
+                        "bInfo":false,
+                        paging:         false,
+                    });
+
+                    oTable7.fnDraw();
+                },
+                error: function (jqXHR, exception) {
+                    $('#modalLoad').modal("hide");
+                    alert('Uncaught Error.\n' + jqXHR.responseText);
+                }
+            });
+        }
+        //--------------------------Function for Calculate Items----------------------------------------------------------
+        function calculateItems(){
+            var result = parseFloat($('#AqtyOnhand').val()) - parseFloat($('#AqtyOnOrder').val());
+            $('#AqtyAvailable').val(result.toFixed(2));
+        }
+        //--------------------------Function for fix decimal point----------------------------------------------------------
+        function setTwoNumberDecimal(el) {
+            el.value = parseFloat(el.value).toFixed(2);
+        };
+        //--------------------------For table Reserve----------------------------------------------------------
+        $(document).on("click", "#tblReserved > tbody > tr", function (e) {
+            var id = $(this).attr('id')
+            alert(id);
+            if ($(this).hasClass('active')) {
+                $(this).removeClass('active');
+            } else {
+                $(this).addClass('active').siblings().removeClass('active');
+            }
+        });
+        //--------------------------Function for Tabs----------------------------------------------------------
+        function tabs(evt, id) {
+            var i, tabcontent, tablinks;
+            tabcontent = document.getElementsByClassName("tabcontent");
+            for (i = 0; i < tabcontent.length; i++) {
+                tabcontent[i].style.display = "none";
+            }
+            tablinks = document.getElementsByClassName("tablinks");
+            for (i = 0; i < tablinks.length; i++) {
+                tablinks[i].className = tablinks[i].className.replace(" active", "");
+            }
+            document.getElementById(id).style.display = "block";
+            evt.currentTarget.className += " active";
+        }
+        //--------------------------Function for Create PO----------------------------------------------------------
+        function createPO() {
+            alert("Create PO?");
+        }
+        //--------------------------Function for Transactions Location----------------------------------------------------------
+        function getTransactionLocation(type){
+            $('#modalLoad').modal("show");
+            $.ajax({
+                url: '@Url.Action("TransactionLocation", "InvProduct")',
+                type: "POST",
+                data: {type: type,id:$('#id').val()},
+                success: function (result) {
+                    if (result.code == 1) {
+                        $('#TranLocation').empty();
+                        $.each(result.data, function (i, item) {
+                            $('#TranLocation').append($('<option>', { 
+                                value: item.ID,
+                                text : item.Name 
+                            }));
+                        });
+                        if (type == 1) {
+                            $('#TranMode').val(1);
+                            $('#hTransTitle').html("<span class=\"glyphicon glyphicon-flag\"></span> Transaction Inward");
+                        } else{
+                            $('#TranMode').val(2);
+                            $('#hTransTitle').html("<span class=\"glyphicon glyphicon-flag\"></span> Transaction Outward");
+                        }
+
+                        $('#TranLocation').selectpicker('refresh');
+                        $('#modalLoad').modal("hide");
+                        $('#modalInwardOutward').modal("show");
+                    } else{
+                        $('#modalLoad').modal("hide");
+                        swal({ title: "Warning!", text: "No Item Available!", type: "warning" });
+                    }
+                    
+                },
+                error: function (jqXHR, exception) {
+                    $('#modalLoad').modal("hide");
+                    alert('Uncaught Error.\n' + jqXHR.responseText);
+                }
+            });
+        }
+        //--------------------------For Inward Transaction----------------------------------------------------------
+        $('#btnInward').on("click", function () {
+            getTransactionLocation(1);
+        })
+        //--------------------------For Outward Transactions----------------------------------------------------------
+        $('#btnOutward').on("click", function () {
+            getTransactionLocation(2);
+        })
+        //--------------------------Submit/update Product----------------------------------------------------------
+        $("#formProduct").on('submit', (function (e) {
+            e.preventDefault();
+            $('#modalLoad').modal("show");
+            $.ajax({
+                url: $(this).attr('action'),
+                type: $(this).attr('method'),
+                enctype: 'multipart/form-data',
+                data: new FormData(this),
+                contentType: false,
+                cache: false,
+                processData: false,
+                success: function (data) {
+                    $('#modalLoad').modal("hide");
+                    if (data.status) {
+                        if (data.code == 1) {
+                            $('#formProduct')[0].reset();
+                            $('#previewing').attr('src', '/Images/Items/no-image-yet.jpg');
+                            $('#fancy-checkbox-default2').trigger('click');
+                            swal({ title: "Success!", text: data.msg, type: "success" });
+                        } else{
+                            swal({ title: "Success!", text: data.msg, type: "success" });
+                        }
+                    } else {
+                        swal({ title: "Warning!", text: "Something went wrong!", type: "warning" });
+                    }
+                },
+                error: function (jqXHR, exception) {
+                    $('#modalLoad').modal("hide");
+                    var errmsg = '';
+                    if (jqXHR.status === 0) {
+                        errmsg = 'Not connect.\n Verify Network.';
+                        alert(errmsg);
+                    } else if (jqXHR.status == 404) {
+                        errmsg = 'Requested page not found. [404]';
+                        alert(errmsg);
+                    } else if (jqXHR.status == 500) {
+                        errmsg = 'Internal Server Error [500].';
+                        alert(errmsg);
+                    } else if (exception === 'parsererror') {
+                        errmsg = 'Requested JSON parse failed.';
+                        alert(errmsg);
+                    } else if (exception === 'timeout') {
+                        errmsg = 'Time out error.';
+                        alert(errmsg);
+                    } else if (exception === 'abort') {
+                        errmsg = 'Ajax request aborted.';
+                        alert(errmsg);
+                    } else {
+                        errmsg = 'Uncaught Error.\n' + jqXHR.responseText;
+                        alert(errmsg);
+                    }
+                }
+            });
+        }));
+        //--------------------------button new----------------------------------------------------------
+        $('#btnNew').on("click", function () {
+            $('#formProduct')[0].reset();
+            $('#previewing').attr('src', '/Images/Items/no-image-yet.jpg');
+            $('#fancy-checkbox-default2').trigger('click');
+
+            $('#formProduct')[0].reset();
+            $('#previewing').attr('src', '/Images/Items/no-image-yet.jpg');
+            $('#fancy-checkbox-default2').trigger('click');
+        })
+        //--------------------------Submit Inward or Outward Transactions----------------------------------------------------------
+        $("#formInwardOutward").on('submit', (function (e) {
+            e.preventDefault();
+            $('#modalInwardOutward').modal("hide");
+            $('#modalLoad').modal("show");
+            $.ajax({
+                url: $(this).attr('action'),
+                type: $(this).attr('method'),
+                data: new FormData(this),
+                contentType: false,
+                cache: false,
+                processData: false,
+                success: function (data) {
+                    $('#modalLoad').modal("hide");
+                    if (data.status) {
+                        if (data.code == 1) {
+                            swal({ title: "Success!", text: data.msg, type: "success" });
+                            $('#qtyOnHand').val(data.qtyOnhand);
+                            $('#AqtyOnhand').val(data.qtyOnhand);
+                            calculateItems();
+                            GenerateReseveTable();
+                            GenerateTransactionsTable();
+                        }
+                    } else {
+                        swal({ title: "Warning!", text: "Something went wrong!", type: "warning" });
+                    }
+                },
+                error: function (jqXHR, exception) {
+                    $('#modalLoad').modal("hide");
+                    var errmsg = '';
+                    if (jqXHR.status === 0) {
+                        errmsg = 'Not connect.\n Verify Network.';
+                        alert(errmsg);
+                    } else if (jqXHR.status == 404) {
+                        errmsg = 'Requested page not found. [404]';
+                        alert(errmsg);
+                    } else if (jqXHR.status == 500) {
+                        errmsg = 'Internal Server Error [500].';
+                        alert(errmsg);
+                    } else if (exception === 'parsererror') {
+                        errmsg = 'Requested JSON parse failed.';
+                        alert(errmsg);
+                    } else if (exception === 'timeout') {
+                        errmsg = 'Time out error.';
+                        alert(errmsg);
+                    } else if (exception === 'abort') {
+                        errmsg = 'Ajax request aborted.';
+                        alert(errmsg);
+                    } else {
+                        errmsg = 'Uncaught Error.\n' + jqXHR.responseText;
+                        alert(errmsg);
+                    }
+                }
+            });
+        }));
+    </script>
+}
+

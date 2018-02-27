@@ -1,0 +1,43 @@
+﻿@model IEnumerable<ErpOnline.Models.InvProductTransaction>
+
+<table id="tblTransaction" class="table table-bordered table-hover table-responsive table-striped dataTable no-footer">
+    <thead>
+        <tr>
+            <th data-orderable="false">Reference</th>
+            <th data-orderable="false">Inward</th>
+            <th data-orderable="false">Outward</th>
+            <th data-orderable="false">Balance</th>
+            <th data-orderable="false">Location</th>
+            <th data-orderable="false">Post Date</th>
+            <th data-orderable="false">Comment</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+            {
+            <tr>
+                <td>
+                    @item.TranOrderNumber
+                </td>
+                <td>
+                    @item.TranInwards
+                </td>
+                <td>
+                    @item.TranOutwards
+                </td>
+                <td>
+                    @item.TranBalance
+                </td>
+                <td>
+                    @item.sLocation
+                </td>
+                <td>
+                    @item.TranPostDate
+                </td>
+                <td>
+                    @item.TranComment
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

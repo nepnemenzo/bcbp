@@ -1,0 +1,287 @@
+﻿@model bcbp_101.Models.bcbp.ParticipantModel
+
+@{
+    ViewBag.Title = "CLP Participants";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    h3 {
+        color: red;
+    }
+</style>
+<div class="row">
+    <div class="col-xs-5">
+        <h3 style="margin-top:0px">CLP Participants</h3>
+    </div>
+    <div class="col-xs-7">
+        <div class="row pull-right" style="margin-right:0px">
+            <div>
+                @*<a type="button" class="btn btn-default link" href="@Url.Action("Create", "Member")" id="btnAdd" style="margin-left: 10px;"><span class="glyphicon glyphicon-plus"></span> Add</a>*@
+                <button type="button" class="btn btn-default" id="btnAdd" style="margin-left: 10px;"><span class="glyphicon glyphicon-plus"></span> Add</button>
+                <button type="button" class="btn btn-default" id="btnEdit" style="margin-left: 10px;"><span class="glyphicon glyphicon-pencil"></span> Edit</button>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- /. ROW  -->
+<hr style="margin-top: 10px;" />
+
+<div class="col-md-12">
+    <div id="divParticipantTable">  @*participantDataTable*@
+    </div>
+</div>
+
+<form>
+    <input type="hidden" id="memId" name="memId" />
+</form>
+
+
+
+
+<!--  ****************************Modal Form **************************************  -->
+<div class="modal fade" id="AddEdit" role="dialog">
+    <div class="modal-dialog" style="margin-top:15%">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" style="margin-top: 0px; margin-right: 0px;">&times;</button>
+                <h4 id="lblTitle"><span class="glyphicon glyphicon-user"></span> </h4>
+            </div>
+
+            <form role="form" id="frmParticipantDetail">
+                <div class="panel-body" style="padding:20px 30px;">
+                    <div class="form-horizontal" style="margin-top:5px">
+                        <div class="col-md-12">
+
+
+                            <div class="form-group">
+                                @Html.LabelFor(model => model.memberId, htmlAttributes: new { @class = "control-label col-md-3" })
+                                <div class="col-md-7">
+                                    @Html.DropDownListFor(model => model.memberId, new SelectList(Model.MemberList, "id", "name", Model.MemberList), "Please Select participant", new { @class = "form-control" })
+                                    @Html.ValidationMessageFor(model => model.memberId, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                @Html.LabelFor(model => model.GroupId, htmlAttributes: new { @class = "control-label col-md-3" })
+                                <div class="col-md-7">
+                                    @Html.DropDownListFor(model => model.GroupId, new SelectList(Model.GroupList, "id", "name", Model.GroupList), "Please Select group", new { @class = "form-control" })
+                                    @Html.ValidationMessageFor(model => model.GroupId, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+
+
+                            <div class="form-group">
+                                @Html.LabelFor(model => model.statusID, htmlAttributes: new { @class = "control-label col-md-3" })
+                                <div class="col-md-7">
+                                    @Html.DropDownListFor(model => model.statusID, new SelectList(Model.StatusList, "id", "name", Model.StatusList), new { @class = "form-control" })
+                                    @Html.ValidationMessageFor(model => model.statusID, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                          </div>
+
+                        <input type="hidden" id="bId" name="bId" />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <div class="pull-right">
+                        <button type="submit" class="btn btn-success pull-left" id="btnSave"><span class="glyphicon glyphicon-save"></span> Save</button>
+                        <button type="submit" class="btn btn-danger pull-left" onclick="this.form.reset()" data-dismiss="modal"><span class="glyphicon glyphicon-remove"></span> Cancel</button>
+                    </div>
+
+                </div>
+                <div style="height:10px;background:#3e60ad;border-radius: 0px 0px 5px 5px;"></div>
+            </form>
+
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+@section scripts{
+    <script type="text/javascript">
+        $(document).ready(function () {
+            GenerateTable();
+            $('#participantDataTable').DataTable();
+
+            $("select").prop('class', 'selectpicker show-tick form-control');
+            $("select").attr('data-live-search', true);
+        });
+
+        function GenerateTable() {
+            $('#modalLoad').modal("show");
+            $.ajax({
+                url: '@Url.Action("ParticipantList", "Participant")',
+                type: "GET",
+                success: function (result) {
+                    $('#modalLoad').modal("hide");
+                    if (result.status) {
+                        $('#divParticipantTable').html(result.data);
+                    } else {
+                        $('#divParticipantTable').html("<p style=\"text-align:center\">" + result.msg + "</p>");
+                    }
+                    $('.modal-backdrop').remove();
+                    $('#participantDataTable').DataTable();
+                },
+                error: function () {
+                }
+            });
+        }
+
+
+        //--------------Add ---------------
+
+        $('#btnAdd').on("click", function () {
+            //$('#modalLoad').modal("hide");
+            $('#AddEdit').modal("show");
+            $('#lblTitle').html("<span class=\"glyphicon glyphicon-flag\"></span> Add Participant");
+        });
+
+
+        //----------------save modal from-----------------
+        $('#btnSave').on("click", function () {
+            $('#modalLoad').modal("show");
+            //var arr = $('#participantDataTable').dataTable().fnGetData($(this));
+            //var Id = arr[0];
+
+            var model = {
+                memberId: $('#memberId').val(),
+                GroupId: $('#GroupId').val(),
+                statusID: $('#statusID').val(),
+            };
+            $.ajax({
+                url: '@Url.Action("SaveParticipant", "Participant")',
+                type: "POST",
+                data: { model: model },
+                success: function (result) {
+                    $('#modalLoad').modal("hide");
+                    if (result.status) {
+                        swal({ title: "Success!", text: result.msg, type: "Success" });
+                        GenerateTable();
+                    } else {
+                        swal({ title: "Warning!", text: result.msg, type: "warning" });
+                    }
+                },
+            });
+        });
+
+
+
+
+        //--------------modify-------------
+        $('#btnEdit').on("click", function (e) {
+            $('#modalLoad').modal("show");
+            var Id = $('#memId').val();
+            if (!Id) {
+                swal({ title: "No participant selected!", text: "Please select from the list!", type: "warning" });
+                $('#modalLoad').modal("hide");
+                //return false;
+            } else {
+                //location.href = "/Member/Edit?Id=" + Id;
+                $('#AddEdit').modal("show");
+                $('#lblTitle').html("<span class=\"glyphicon glyphicon-pencil\"></span> Modify Participant");
+                $.ajax({
+                    url: '@Url.Action("ModifyParticipant", "Participant")',
+                    type: "GET",
+                    data: { id: Id },
+                    success: function (result) {
+                        $('#modalLoad').modal("hide");
+                        if (result.status) {
+                            $('#memberId').val(result.memberId);
+                            $('#GroupId').val(result.GroupId);
+                            $('#statusID').val(result.statusID);
+                            //$('#statusID').val(result.data[0].statusID);
+
+                        } else {
+                            $('#divBranchTable').html("<p style=\"text-align:center\">" + result.msg + "</p>");
+                        }
+                    },
+                    error: function () {
+                        alert('test2');
+                    }
+                });
+            }
+         });
+        //------------------
+
+
+        $(document).on("click", "#divParticipantTable tr", function (e) {
+            var arr = $('#participantDataTable').dataTable().fnGetData($(this));
+            var Id = arr[0];
+            $('#memId').val(Id);
+            var newId = $('#memId').val();
+            if ($(this).hasClass('active')) {
+                $(this).removeClass('active');
+                ////$('#bId').val(0);
+            } else {
+                $(this).addClass('active').siblings().removeClass('active');
+            }
+        });
+
+        $(document).on("dblclick", "#divParticipantTable tr", function (e) {
+            var arr = $('#participantDataTable').dataTable().fnGetData($(this));
+            var Id = arr[0];
+            $('#AddEdit').modal("show");
+            $('#lblTitle').html("<span class=\"glyphicon glyphicon-pencil\"></span> Modify Participant");
+            $.ajax({
+                url: '@Url.Action("ModifyParticipant", "Participant")',
+                type: "GET",
+                data: { id: Id },
+                success: function (result) {
+                    $('#modalLoad').modal("hide");
+                    if (result.status) {
+                        $('#memberId').val(result.memberId);
+                        $('#GroupId').val(result.GroupId);
+                        $('#statusID').val(result.statusID);
+                        //$('#statusID').val(result.data[0].statusID);
+
+                    } else {
+                        $('#divBranchTable').html("<p style=\"text-align:center\">" + result.msg + "</p>");
+                    }
+                },
+                error: function () {
+                    alert('test2');
+                }
+            });
+        });
+
+
+
+        @*//Delete
+        $('#btnDelete').on("click", function (e) {
+            var id = $('#bId').val();
+            if (!id) {
+                swal({ title: "Delete!", text: "Please select Branch to delete!", type: "warning" });
+                return false;
+            }
+            else {
+                $.ajax({
+                    //url: '@Url.Action("Delete", "InvBranch")',
+                    type: "POST",
+                    data: { id: id },
+                    success: function (result) {
+                        $('#modalLoad').modal("hide");
+                        if (result.status) {
+                            swal({ title: "Deleted!", text: "Successfuly deleted!", type: "success" });
+                            GenerateTable();
+                        } else {
+                            swal({ title: "Warning!", text: result.msg, type: "warning" });
+                        }
+                    },
+                });
+            }
+        });*@
+        //-------------------
+
+
+
+    </script>
+}

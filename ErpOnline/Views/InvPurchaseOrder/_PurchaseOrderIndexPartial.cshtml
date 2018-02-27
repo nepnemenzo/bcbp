@@ -1,0 +1,54 @@
+﻿@model IEnumerable<ErpOnline.Models.Inventory.InvPurchaseOrderModel>
+
+<div>
+    <table class="table table-striped table-bordered table-hover" id="poDataTable">
+        <thead>
+            <tr>
+                <th width="50" style="width:30px">
+                    ID
+                </th>
+                <th>
+                    Supplier
+                </th>
+                <th data-orderable="false" style="width:40px">
+                    Gross 
+                </th>
+                <th data-orderable="false" style="width:30px">
+                    VAT 
+                </th>
+                <th data-orderable="false" style="width:30px">
+                    Discount
+                </th>
+                <th data-orderable="false" style="width:40px">
+                    Net 
+                </th>
+            </tr>
+
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr data-id="@Html.DisplayFor(modelItem => item.poId)">
+                    <td>
+                        @Html.DisplayFor(modelItem => item.poId)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.SuppName)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.poGrossAmount)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.poVatAmount)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.poDisCountAmount)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.poNetAmount)
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

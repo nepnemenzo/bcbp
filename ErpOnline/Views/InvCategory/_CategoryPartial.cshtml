@@ -1,0 +1,36 @@
+﻿@model IEnumerable<ErpOnline.Models.InvCategoryViewModel>
+
+<div>
+    <table class="table table-striped table-bordered table-hover" id="CatDataTable">
+        <thead>
+            <tr>
+                <th width="50">
+                    ID
+                </th>
+                <th>
+                    Category Name
+                </th>
+                <th data-orderable="false">
+                    Category Description
+                </th>
+            </tr>
+
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr data-id="@Html.DisplayFor(modelItem => item.catID)">
+                    <td>
+                        @Html.DisplayFor(modelItem => item.catID)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.catName)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.catDescription)
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

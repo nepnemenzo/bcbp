@@ -1,0 +1,148 @@
+﻿@using ErpOnline.DataModel
+
+@{
+    ViewBag.Title = "Dashboard";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    int count = 1;
+}
+
+<style>
+    h3 {
+        color: #102b69;
+    }
+
+    table {
+        border: 1px solid #ddd !important;
+    }
+
+        table tr {
+            height: 25px;
+        }
+
+        table td {
+            padding-top: 4px !important;
+        }
+
+    .title-branch {
+        color: #102b69;
+        font-size: 19px;
+    }
+
+    .br-branch {
+        padding: 0px;
+        border: 1px solid #f3f3f3;
+        border-radius: 5px;
+    }
+
+    .hrt {
+        margin-top: 10px;
+        margin-bottom: 0px;
+    }
+    thead{
+        background-color: #bfd2fc;
+        font-weight: bolder;
+    }
+</style>
+
+<div class="row">
+    <div class="col-xs-6">
+        <h3 style="margin-top:0px">Top 5 Moving Stock</h3>
+    </div>
+    <div class="col-xs-6">
+    </div>
+</div>
+
+<div class="row">
+
+    @foreach (var item in ViewBag.ListofBranch)
+    {
+        <div class="col-xs-6">
+            <div class="col-xs-12 table-responsive br-branch">
+                <div class="col-xs-12">
+                    <h5 class="text-center title-branch">@item.name</h5>
+                    <hr class="hrt" />
+                </div>
+                <div class="col-xs-6">
+                    <h5 class="text-center">Stock-IN</h5>
+                    <table class="table table-bordered table-hover table-responsive table-striped" style="margin-left:0px">
+                        <thead>
+                            <tr>
+                                <td>Item Name</td>
+                                <td>Qty</td>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @{
+                                var data = DashboardData.LisstOfStockIn(item.branchID);
+                                if (data.Count != 0)
+                                {
+                                    foreach (var item1 in data)
+                                    {
+                                        <tr>
+                                            <td>@item1.itemname</td>
+                                            <td>@item1.qty</td>
+                                        </tr>
+                                    }
+                                }
+                                else
+                                {
+                                    <tr>
+                                        <td colspan="2" style="text-align:center">No data found.</td>
+                                    </tr>
+                                }
+                            }
+                        </tbody>
+                    </table>
+                </div>
+                <div class="col-xs-6">
+                    <h5 class="text-center">Stock-OUT</h5>
+                    <table class="table table-bordered table-hover table-responsive table-striped" style="margin-left:0px">
+                        <thead>
+                            <tr>
+                                <td>Item Name</td>
+                                <td>Qty</td>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @{
+                                var data1 = DashboardData.LisstOfStockOut(item.branchID);
+                                if (data.Count != 0)
+                                {
+                                    foreach (var item1 in data1)
+                                    {
+                                        <tr>
+                                            <td>@item1.itemname</td>
+                                            <td>@item1.qty</td>
+                                        </tr>
+                                    }
+                                }
+                                else
+                                {
+                                    <tr>
+                                        <td colspan="2" style="text-align:center">No data found.</td>
+                                    </tr>
+                                }
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        if (count % 2 == 0)
+        {
+            <div class="col-xs-12" style="margin-bottom: 5px;"></div>
+        }
+        count++;
+    }
+
+</div>
+
+<div class="row">
+    <hr />
+    <div class="col-xs-6">
+        <h3 style="margin-top:0px">Online User/s</h3>
+    </div>
+    <div class="col-xs-6">
+    </div>
+</div>

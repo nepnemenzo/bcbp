@@ -1,0 +1,243 @@
+﻿
+@{
+    ViewBag.Title = "User List";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    h3 {
+        color: red;
+    }
+</style>
+<div class="row">
+    <div class="col-xs-6">
+        <h3 style="margin-top:0px">Users List</h3>
+    </div>
+    <div class="col-xs-6">
+        <div class="row pull-right" style="margin-right:0px">
+            <div>
+                <button type="button" class="btn btn-success" id="btnAdd" style="margin-left: 10px;"><span class="glyphicon glyphicon-plus"></span> Add</button>
+                <button type="button" class="btn btn-warning" id="btnEdit" style="margin-left: 10px;"><span class="glyphicon glyphicon-pencil"></span> Edit</button>
+                <button type="button" class="btn btn-danger" id="btnDelete" style="margin-left: 10px;"><span class="glyphicon glyphicon-trash"></span> Delete</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- /. ROW  -->
+<hr style="margin-top: 10px;" />
+
+<div class="col-md-12">
+    <div id="divUserTable">
+    </div>
+</div>
+
+
+<div class="modal fade my-modal" id="AddEdit" role="dialog">
+    <div class="modal-dialog modal-800">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4><span class="glyphicon glyphicon-user"></span> User </h4>
+            </div>
+
+
+            <form id="frmUsr" action="@Url.Action("Create","InvUser")" method="post">
+                <div class="panel-body">
+                    <div class="form-horizontal" style="margin-top:5px">
+                        <div class="col-xs-6">
+                            <label>First name</label><span class="c-red"> *required</span>
+                            <input type="text" id="FName" name="FName" class="form-control" required />
+                        </div>
+                        <div class="col-xs-6">
+                            <label>Last name</label><span class="c-red"> *required</span>
+                            <input type="text" id="LName" name="LName" class="form-control" required />
+                        </div>
+                        <div class="col-xs-6">
+                            <label>User name</label><span class="c-red"> *required</span>
+                            <input type="text" id="UserName" name="UserName" class="form-control" required />
+                        </div>
+                        <div class="col-xs-6">
+                            <label>Password</label><span class="c-red"> *required</span>
+                            <input type="password" id="UserPaswr" name="UserPaswr" class="form-control" required />
+                        </div>
+                        <div class="col-xs-6">
+                            <label>Branch</label><span class="c-red"> *required</span>
+                            <select class="selectpicker form-control" name="branchlist" id="branchlist" data-live-search="true" required>
+                                <option selected> --- select branch --- </option>
+                                @foreach (var item in Model.listOfBranch)
+                                {
+                                    <option data-tokens="@item.name" value="@item.branchID" data-name="@item.name" data-add="@item.address" data-phone="@item.phone" data-phone2="@item.phone2"> @item.branchID - @item.name</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="col-xs-6">
+                            <label>Confirm Password</label><span class="c-red"> *required</span>
+                            <input type="password" name="confirm_password" class="form-control" required />
+                        </div>
+                        <div class="col-xs-6">
+                            <label>Access Right</label><span class="c-red"> *required</span>
+                            <select class="form-control" id="AccessRights" name="AccessRights">
+                                <option value="0"></option>
+                                <option value="1">Inventory</option>
+                                <option value="2">Sales</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <div class="pull-right">
+                        <button type="submit" class="btn btn-danger btn-default btn-sm pull-left" onclick="this.form.reset()" data-dismiss="modal"><span class="glyphicon glyphicon-remove"></span> Cancel</button>
+                        <button type="submit" class="btn btn-success btn-default btn-sm pull-left"><span class="glyphicon glyphicon-save"></span> Save</button>
+                    </div>
+
+                </div>
+                <div class="div-modal-foot"></div>
+            </form>
+
+        </div>
+    </div>
+</div>
+
+@section scripts{
+    <script type="text/javascript">
+        $(document).ready(function () {
+            GenerateTable();
+            $('#UserTable').DataTable();
+        });
+
+        function GenerateTable() {
+            $('#modalLoad').modal("show");
+            $.ajax({
+                url: '@Url.Action("GetUserList", "InvUser")',
+                type: "GET",
+                success: function (result) {
+                    $('#modalLoad').modal("hide");
+                    if (result.status) {
+                        $('#divUserTable').html(result.data);
+                    } else {
+                        $('#divUserTable').html("<p style=\"text-align:center\">" + result.msg + "</p>");
+                    }
+                    $('.modal-backdrop').remove();
+                    $('#UserTable').DataTable();
+                },
+                error: function () {
+
+                }
+            });
+        }
+
+        $(document).on("click", "#UserTable tr", function (e) {
+
+            var arr = $('#UserTable').dataTable().fnGetData($(this));
+            var Id = arr[0];
+            $('#Number').val(Id);
+            if ($(this).hasClass('active')) {
+                $(this).removeClass('active');
+                $('#Number').val(0);
+            } else {
+                $(this).addClass('active').siblings().removeClass('active');
+            }
+        });
+
+        $('#btnEdit').on("click", function () {
+            var id = $('#Number').val();
+            if (id == 0) {
+                swal({ title: "Update!", text: "Please select category to update!", type: "warning" });
+                return false;
+            }
+            $('#modalLoad').modal("show");
+            $.ajax({
+                url: '@Url.Action("GetUnitInfo", "InvUnit")',
+                data: { id: $('#Number').val() },
+                type: "POST",
+                success: function (result) {
+                    $('#modalLoad').modal("hide");
+                    if (result.status) {
+                        $('#Code').val(result.data.Code);
+                        $('#Number').val(result.data.Number);
+                        $('#Description1').val(result.data.Description1);
+                        $('#Description2').val(result.data.Description2);
+                    } else {
+                        swal({ title: "Warning!", text: "Something went wrong!", type: "warning" });
+                    }
+
+                    //for (var i in result.data) {
+                    //    $('#catName').val(result.data[i].catName);
+                    //    $('#catID').val(result.data[i].catID);
+                    //    $('#catDescription').val(result.data[i].catDescription);
+                    //}
+                    $('#AddEdit').modal("show");
+                },
+            });
+        })
+
+        $('#btnDelete').on("click", function () {
+            var id = $('#Number').val();
+            if (!id) {
+                swal({ title: "Delete!", text: "Please select category to delete!", type: "warning" });
+                return false;
+            }
+            swal({ title: "Deleted!", text: "Successfuly deleted!", type: "success" });
+
+        })
+
+        $("#btnAdd").click(function () {
+            $('#frmUsr')[0].reset();
+            $('#UserTable tr').removeClass('active');
+            $('#Number').val(0);
+            $('#AddEdit').modal("show");
+        });
+
+        $("#frmUsr").on('submit', (function (e) {
+            e.preventDefault();
+            $('#AddEdit').modal("hide");
+            $('#modalLoad').modal("show");
+            $.ajax({
+                url: $(this).attr('action'),
+                type: $(this).attr('method'),
+                data: new FormData(this),
+                contentType: false,
+                cache: false,
+                processData: false,
+                success: function (data) {
+                    $('#modalLoad').modal("hide");
+                    if (data.status) {
+                        swal({ title: "Success!", text: data.msg, type: "success" });
+                    } else {
+                        swal({ title: "Warning!", text: "Something went wrong!", type: "warning" });
+                    }
+                    GenerateTable();
+                },
+                error: function (jqXHR, exception) {
+                    $('#modalLoad').modal("hide");
+                    var errmsg = '';
+                    if (jqXHR.status === 0) {
+                        errmsg = 'Not connect.\n Verify Network.';
+                        alert(errmsg);
+                    } else if (jqXHR.status == 404) {
+                        errmsg = 'Requested page not found. [404]';
+                        alert(errmsg);
+                    } else if (jqXHR.status == 500) {
+                        errmsg = 'Internal Server Error [500].';
+                        alert(errmsg);
+                    } else if (exception === 'parsererror') {
+                        errmsg = 'Requested JSON parse failed.';
+                        alert(errmsg);
+                    } else if (exception === 'timeout') {
+                        errmsg = 'Time out error.';
+                        alert(errmsg);
+                    } else if (exception === 'abort') {
+                        errmsg = 'Ajax request aborted.';
+                        alert(errmsg);
+                    } else {
+                        errmsg = 'Uncaught Error.\n' + jqXHR.responseText;
+                        alert(errmsg);
+                    }
+                }
+            });
+        }));
+
+    </script>
+}

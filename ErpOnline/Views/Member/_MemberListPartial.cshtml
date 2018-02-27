@@ -1,0 +1,56 @@
+﻿@model IEnumerable<bcbp_101.Models.bcbp.MemberModel>
+
+<div>
+    <table class="table table-striped table-bordered table-hover" id="memberDataTable">
+        <thead>
+            <tr>
+                <th style="width:80px">
+                    ID
+                </th>
+                <th style="width:300px">
+                    Name
+                </th>
+                <th data-orderable="false" style="width:300px">
+                    Address
+                </th>
+                <th data-orderable="false" style="width:300px">
+                    Sponsor
+                </th>
+                <th data-orderable="false" style="width:100px">
+                    Position
+                </th>
+                <th data-orderable="false" style="width:100px">
+                    Status
+                </th>
+            </tr>
+
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr data-id="@Html.DisplayFor(modelItem => item.id)">
+                    <td>
+                        @Html.DisplayFor(modelItem => item.id)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.memName)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.address)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.SponsorName)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.PositionName)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.statusName)
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+

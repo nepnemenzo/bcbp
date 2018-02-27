@@ -1,0 +1,39 @@
+﻿@model IEnumerable<ErpOnline.Models.InvBrandViewModel>
+
+<div class="tableBoarderHeightA">
+    <table id="BrandTable" class="table table-bordered table-hover table-responsive table-striped" style="border:0px;">
+        <thead>
+            <tr>
+                <th width="50">
+                    ID
+                </th>
+                <th width="300">
+                    Brand Name
+                </th>
+                <th>
+                    Brand Description
+                </th>
+            </tr>
+        </thead>
+
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr data-id="@Html.DisplayFor(modelItem => item.brndNumber)">
+                    <td>
+                        @Html.DisplayFor(modelItem => item.brndNumber)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.brndName)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.brndDescription)
+                    </td>
+
+                </tr>
+            }
+        </tbody>
+
+    </table>
+</div>
+

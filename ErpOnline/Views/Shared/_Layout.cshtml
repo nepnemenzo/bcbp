@@ -1,0 +1,659 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewBag.Title</title>
+    @Styles.Render("~/Content/css")
+    @Styles.Render("~/Content/aws")
+    @*<link href='http://fonts.googleapis...com/css?family=Open+Sans' rel='stylesheet' type='text/css' />*@
+    <link href="~/fonts/fonts-googleApis-OpenSans.css" rel="stylesheet" />
+
+    @Styles.Render("~/Content/datatble")
+    <style>
+        th {
+            /*
+            background-color: goldenrod;
+            font-family: 'Century Gothic';
+            text-align: center;
+            vertical-align: central; */
+            background-color: #315096;
+            font-family: 'Century Gothic';
+            text-align: center;
+            vertical-align: central;
+            color: aliceblue;
+        }
+
+        table {
+            width: 70%;
+            margin-left: 15px;
+        }
+
+        td {
+            padding-top: 3px !important;
+            padding-bottom: 3px !important;
+        }
+
+        thead > tr > th {
+            text-align: left;
+        }
+
+        tbody > tr > td {
+            text-indent: 5px;
+        }
+
+        .modal-header, .close {
+            background-color: #3e60ad;
+            color: white !important;
+            text-align: center;
+            font-size: 30px;
+            border-radius: 5px 5px 0px 0px;
+        }
+
+        .div-modal-foot {
+            height: 10px;
+            background: #3e60ad;
+            border-radius: 0px 0px 5px 5px;
+        }
+
+        .modal-dialog {
+            width: 500px;
+            margin-top: 100px;
+        }
+
+        .modal-800 {
+            width: 700px;
+            margin-top: 100px;
+        }
+
+        .modal h4 {
+            color: white;
+        }
+
+        .modal-footer {
+            background-color: #f9f9f9;
+            height: 60px !important;
+            padding: 20px 20px;
+        }
+
+        .swal2-confirm {
+            margin-right: 5px !important;
+        }
+
+        @@media screen and (min-height: 736px) {
+            .tableBoarderHeightA {
+                height: 520px;
+            }
+
+            .dataTables_scrollBody {
+                /*height: 330px !important;*/
+            }
+        }
+
+        @@media screen and (min-height: 1024px) {
+            .tableBoarderHeightA {
+                height: 800px;
+            }
+
+            .dataTables_scrollBody {
+                height: 650px !important;
+            }
+        }
+
+        @@media screen and (min-height: 1366px) {
+            .tableBoarderHeightA {
+                height: 1110px;
+            }
+
+            .dataTables_scrollBody {
+                height: 975px !important;
+            }
+        }
+
+
+        .active td {
+            /* background: #f0ad4e !important;*/
+            background: #a1baf2 !important;
+        }
+
+        tr:not(.active):hover td {
+            /*background: #f7ca89 !important;*/
+            background: #c6d7ff !important;
+        }
+
+        table {
+            /*
+            border: 0px !important;
+            border-bottom: 1px solid #daa520 !important; */
+            border: 0px !important;
+            border-bottom: 1px solid #315096 !important;
+        }
+
+            table tr {
+                height: 40px;
+            }
+
+            table td {
+                padding-top: 10px !important;
+            }
+
+        .margin0 {
+            margin: 0 0 0 0px !important;
+        }
+
+        .sbh {
+            display: none !important;
+        }
+        /*browser scroll bar*/
+
+        /* For the "inset" look only */
+        html {
+            overflow: auto;
+        }
+
+        /* Let's get this party started */
+        ::-webkit-scrollbar {
+            width: 5px;
+            height: 5px;
+        }
+
+        /* Track */
+        ::-webkit-scrollbar-track {
+            -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+            -webkit-border-radius: 10px;
+            border-radius: 10px;
+        }
+
+        /* Handle */
+        ::-webkit-scrollbar-thumb {
+            -webkit-border-radius: 10px;
+            border-radius: 10px;
+            background: rgb(245, 245, 245);
+            -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.5);
+        }
+
+            ::-webkit-scrollbar-thumb:window-inactive {
+                background: rgba(255,0,0,0.4);
+            }
+    </style>
+    @Scripts.Render("~/bundles/modernizr")
+
+    <script type="text/javascript">
+        var datefield = document.createElement("input")
+        datefield.setAttribute("type", "date")
+        if (datefield.type != "date") { //if browser doesn't support input type="date", load files for jQuery UI Date Picker
+            document.write('<link href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/base/jquery-ui.css" rel="stylesheet" type="text/css" />\n')
+            document.write('<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4/jquery.min.js"><\/script>\n')
+            document.write('<script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/jquery-ui.min.js"><\/script>\n')
+        }
+    </script>
+    <script>
+        if (datefield.type != "date") { //if browser doesn't support input type="date", initialize date picker widget:
+            jQuery(function ($) { //on document.ready
+                $('#TranDate').datepicker();
+            })
+        }
+    </script>
+
+</head>
+<body>
+    <div id="wrapper">
+        <nav class="navbar navbar-default navbar-cls-top " role="navigation" style="margin-bottom: 0">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target=".sidebar-collapse">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar top-bar"></span>
+                    <span class="icon-bar middle-bar"></span>
+                    <span class="icon-bar bottom-bar"></span>
+                </button>
+                @*<a class="navbar-brand" href="@Url.Action("Index","Dashboard")">bcbp</a>*@
+            </div>
+
+            @*<div style="color: #cc0d07; *@
+            <div style="color: #0716cc;
+                padding: 15px 50px 5px 50px;
+                float: right;
+                font-size: 24px;
+                font-weight: bolder;">
+                BCBP Naga <!--<a href="#" class="btn btn-default square-btn-adjust">Logout</a>-->       
+            </div>
+       </nav>
+        <!-- /. NAV TOP  -->
+        <nav class="navbar-default navbar-side" role="navigation">
+            <div id="divside" class="sidebar-collapse">
+                <ul class="nav" id="main-menu">
+                    <li class="text-center">
+                        <img src="~/Content/assets/img/find_user.png" class="user-image img-responsive" />
+                        <div style="position: absolute;top: 39px;left: 104px;">
+                            <a href="@Url.Action("logout","Account")" class="btn btn-default link">Logout</a>
+                            <!--
+                            <span><b>Welcome!</b> Richard</span>
+                            <br />
+                            <button type="button" class="btn btn-default" data-trigger="focus" style="cursor: pointer;border: 0px;" data-toggle="popover"><i class="fa fa-user" id="logout-url" data-logout="@Url.Action("logout","Account")"></i> Profile</button>
+                        -->
+                        </div>
+
+                        <br />
+                    </li>
+
+                    <li>
+                        @*<a class="active-menu link" href="@Url.Action("Index","Dashboard")"><i class="fa fa-dashboard fa-2x"></i> Dashboard</a>*@
+                    </li>
+                   
+                    <li>
+                        <a href="#"><i class="fa fa-sitemap fa-2x"></i>Christian Life Program<span class="fa arrow"></span></a>
+                        <ul class="nav nav-second-level">
+                            <li>
+                                <a href="@Url.Action("Index","CLPAttendance")" class="link">Attendance</a>     
+                            </li>
+                            <li>
+                                <a href="@Url.Action("Index","Participant")" class="link">Participants </a>
+                            </li>
+                            <li>
+                                <a href="@Url.Action("StockOutList","InvTransactions")" class="link">Talks/Topics</a>
+                            </li>
+                            <li>
+                                <a href="@Url.Action("Index","Servant")">Servants</a>
+                            </li>
+                            
+                        </ul>
+                    </li>
+
+                    <li>
+                        <a href="@Url.Action("Index", "Member")"><i class="fa fa-users fa-2x"></i> Members</a>
+                    </li>
+                    <li>
+                        <a href="@Url.Action("Index", "Member")"><i class="fa fa-cog fa-2x"></i> Settings</a>
+                    </li>
+
+                    @*<li>
+                        <a href="#"><i class="fa fa-dollar fa-2x"></i> Sales Orders</a>
+                    </li>
+                    <li>
+                        <a href="#"><i class="fa fa-qrcode fa-2x"></i> Reports</a>
+                    </li>
+                    <li>
+                        <a href="#"><i class="fa fa-bar-chart-o fa-2x"></i> Inventory</a>
+                    </li>
+                    <li>
+                        <a href="#"><i class="fa fa-table fa-2x"></i> Tables<span class="fa arrow"></span></a>
+                        <ul class="nav nav-second-level">
+                            <li>
+                                <a href="@Url.Action("Index","InvSupplier")" class="link">Supplier</a>
+                            </li>
+                            <li>
+                                <a href="@Url.Action("Index","InvClient")" class="link">Client</a>
+                            </li>
+                            <li>
+                                <a href="@Url.Action("Index", "InvUser")" class="link"></i>User</a>
+                            </li>
+                            <li>
+                                @*<a href="@Url.Action("Index", "InvBranch")" class="link">Branch</a>
+                            </li>
+                            <li>
+                                <a href="#">Products<span class="fa arrow"></span></a>
+                                <ul class="nav nav-third-level">
+                                    <li>
+                                        <a href="@Url.Action("Index","InvCategory")" class="link">Category </a>
+                                    </li>
+                                    <li>
+                                        <a href="@Url.Action("Index", "InvType")" class="link">Type</a>
+                                    </li>
+                                    <li>
+                                        <a href="@Url.Action("Index", "InvBrand")" class="link"></i>Brand</a>
+                                    </li>
+                                    <li>
+                                        <a href="@Url.Action("Index", "InvItemLocation")" class="link">Item Location</a>
+                                    </li>
+                                    <li>
+                                        <a href="@Url.Action("Index", "InvUnit")" class="link">Units</a>
+                                    </li>
+                                </ul>
+
+                            </li>
+                        </ul>
+                    </li>
+
+                    <li>
+                        <a href="#"><i class="fa fa-square-o fa-2x"></i> Settings</a>
+                    </li>*@
+
+
+
+                </ul>
+
+            </div>
+
+        </nav>
+
+        <div id="page-wrapper">
+            <div id="page-inner">
+                <style>
+                    #page-inner {
+                        min-height: 997px;
+                    }
+
+                    input, select {
+                        width: 100%;
+                        height: 28px;
+                        text-indent: 8px;
+                        border-radius: 2px;
+                        border: 1px solid #ccc;
+                        padding-right: 5px;
+                    }
+
+                        input[readonly] {
+                            background-color: #f3f3f3;
+                        }
+
+                    textarea {
+                        width: 100%;
+                        text-indent: 8px;
+                        border-radius: 2px;
+                        border: 1px solid #ccc;
+                        resize: none;
+                    }
+
+                    .dropdown-toggle {
+                        border-radius: 2px !important;
+                        height: 28px !important;
+                        padding: 0px 0px 0px 10px !important;
+                    }
+
+                    .bootstrap-select {
+                        width: 100% !important;
+                    }
+
+                    .input-block-level {
+                        height: 28px !important;
+                    }
+
+                    .form-horizontal .control-label {
+                        text-align: left;
+                    }
+
+                    .input1 {
+                        border-radius: 3px !important;
+                        height: 40px !important;
+                        font-size: 25px;
+                        font-weight: bold;
+                    }
+
+                    h3, h4 {
+                        color: red;
+                    }
+
+                    .divImg {
+                        border: 1px solid #cccccc;
+                        /*height: 162px;*/
+                        margin-top: 0px;
+                        text-align: center;
+                        cursor: -webkit-grab;
+                    }
+
+                    .lbl-font {
+                        font-size: 15px;
+                    }
+
+                    .btn-h {
+                        height: 30px;
+                    }
+
+                    label {
+                        font-weight: normal;
+                    }
+
+                    .btn-search {
+                        position: absolute;
+                        margin: -31px 0px 0px 239px;
+                        height: 32px;
+                    }
+
+                    .divPrice {
+                        display: block;
+                    }
+
+                    .form-group {
+                        margin-bottom: 5px !important;
+                    }
+
+                        .form-group input[type="checkbox"] {
+                            display: none;
+                        }
+
+                            .form-group input[type="checkbox"] + .btn-group > label span {
+                                width: 20px;
+                            }
+
+                                .form-group input[type="checkbox"] + .btn-group > label span:first-child {
+                                    display: none;
+                                }
+
+                                .form-group input[type="checkbox"] + .btn-group > label span:last-child {
+                                    display: inline-block;
+                                }
+
+                            .form-group input[type="checkbox"]:checked + .btn-group > label span:first-child {
+                                display: inline-block;
+                            }
+
+                            .form-group input[type="checkbox"]:checked + .btn-group > label span:last-child {
+                                display: none;
+                            }
+
+                    .btn-group > .btn:first-child:not(:last-child):not(.dropdown-toggle) {
+                        border-radius: 0px;
+                    }
+
+                    .btn-group > .btn:last-child:not(:first-child), .btn-group > .dropdown-toggle:not(:first-child) {
+                        border-radius: 0px;
+                    }
+
+                    .btnPO {
+                        background-color: #5cb85c;
+                        height: 91px;
+                        width: 75px;
+                        border-radius: 5px;
+                        text-align: center;
+                        color: white;
+                        position: absolute;
+                        right: 16px;
+                        top: 209px;
+                    }
+
+                        .btnPO :hover {
+                            cursor: pointer;
+                        }
+
+                    .img-spn {
+                        font-size: 36px;
+                        position: absolute;
+                        margin: 5px 0px 0px -22px;
+                        /*1px 0px 0px 20px*/
+                        color: white;
+                    }
+
+                    .p-po {
+                        font-size: 18px;
+                        line-height: 17px;
+                        padding-top: 46px;
+                    }
+
+                    input#myfile {
+                        height: inherit;
+                        cursor: pointer;
+                        /*position: absolute;*/
+                        margin-top: -20px;
+                        top: 0px;
+                        right: 0px;
+                        z-index: 2;
+                        opacity: 0.0; /* Standard: FF gt 1.5, Opera, Safari */
+                        filter: alpha(opacity=0); /* IE lt 8 */
+                        -ms-filter: "alpha(opacity=0)"; /* IE 8 */
+                        -khtml-opacity: 0.0; /* Safari 1.x */
+                        -moz-opacity: 0.0; /* FF lt 1.5, Netscape */
+                    }
+
+                    .div-tab {
+                        min-height: 300px;
+                        border-radius: 3px;
+                        border: 1px solid #bce8f1;
+                        margin-top: 1px;
+                    }
+
+                    .div-border {
+                        border-radius: 3px;
+                        border: 1px solid #bce8f1;
+                        margin-top: 1px;
+                        display: inline-block;
+                        padding: 10px;
+                        width: 100%;
+                    }
+
+                    .nav-tabs {
+                        border-bottom: 0px solid #ddd;
+                    }
+
+                    @@media only screen and (max-width: 1196px) {
+                        .form-horizontal label {
+                            font-size: 11px;
+                        }
+
+                        input, select {
+                            width: 100%;
+                            height: 26px;
+                            text-indent: 8px;
+                            border-radius: 0px;
+                            border: 1px solid #ccc;
+                            font-size: 12px;
+                        }
+
+                        table {
+                            font-size: 11px;
+                        }
+                    }
+
+                    #tblTransaction td {
+                        background: none !important;
+                    }
+
+                    /* Style the tab */
+                    div.tab {
+                        overflow: hidden;
+                        /*border: 1px solid #bce8f1;*/
+                        border-bottom: 0px;
+                        /*background-color: #f3f3f3;*/
+                    }
+
+                        /* Style the buttons inside the tab */
+                        div.tab button {
+                            background-color: inherit;
+                            float: left;
+                            border: none;
+                            outline: none;
+                            cursor: pointer;
+                            padding: 7px 16px;
+                            transition: 0.3s;
+                            font-size: 17px;
+                        }
+
+                            /* Change background color of buttons on hover */
+                            div.tab button:hover {
+                                background-color: #ddd;
+                            }
+
+                            /* Create an active/current tablink class */
+                            div.tab button.active {
+                                border: 1px solid #bce8f1;
+                                border-radius: 3px;
+                                border-bottom: 0px;
+                                background: aliceblue;
+                            }
+
+                    /* Style the tab content */
+                    .tabcontent {
+                        display: none;
+                        border-top: none;
+                    }
+
+                    div.container {
+                        max-width: 1200px;
+                    }
+                </style>
+                @RenderBody()
+            </div>
+            <footer style="text-align: center;">
+                <p>
+                    This site is managed for BCBP -  BREAKFAST|CLP|ACTIVITIES . | &copy; @DateTime.Now.Year ETR Tech Solution. All rights reserved.
+                </p>
+            </footer>
+        </div>
+    </div>
+
+    <link href="~/Content/load.css" rel="stylesheet" />
+    <div class="modal fade" id="modalLoad" tabindex="-1" role="dialog" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+        <div class="modal-body">
+            <div style="top:250px;position:inherit">
+
+
+                <svg id="loading">
+                    <g>
+                        <path class="ld-l" fill="#39C0C4" d="M43.6,33.2h9.2V35H41.6V15.2h2V33.2z" />
+                        <path class="ld-o" fill="#39C0C4" d="M74.7,25.1c0,1.5-0.3,2.9-0.8,4.2c-0.5,1.3-1.2,2.4-2.2,3.3c-0.9,0.9-2,1.6-3.3,2.2
+	c-1.3,0.5-2.6,0.8-4.1,0.8s-2.8-0.3-4.1-0.8c-1.3-0.5-2.4-1.2-3.3-2.2s-1.6-2-2.2-3.3C54.3,28,54,26.6,54,25.1s0.3-2.9,0.8-4.2
+	c0.5-1.3,1.2-2.4,2.2-3.3s2-1.6,3.3-2.2c1.3-0.5,2.6-0.8,4.1-0.8s2.8,0.3,4.1,0.8c1.3,0.5,2.4,1.2,3.3,2.2c0.9,0.9,1.6,2,2.2,3.3
+	C74.4,22.2,74.7,23.6,74.7,25.1z M72.5,25.1c0-1.2-0.2-2.3-0.6-3.3c-0.4-1-0.9-2-1.6-2.8c-0.7-0.8-1.6-1.4-2.6-1.9
+	c-1-0.5-2.2-0.7-3.4-0.7c-1.3,0-2.4,0.2-3.4,0.7c-1,0.5-1.9,1.1-2.6,1.9c-0.7,0.8-1.3,1.7-1.6,2.8c-0.4,1-0.6,2.1-0.6,3.3
+	c0,1.2,0.2,2.3,0.6,3.3c0.4,1,0.9,2,1.6,2.7c0.7,0.8,1.6,1.4,2.6,1.9c1,0.5,2.2,0.7,3.4,0.7c1.3,0,2.4-0.2,3.4-0.7
+	c1-0.5,1.9-1.1,2.6-1.9c0.7-0.8,1.3-1.7,1.6-2.7C72.4,27.4,72.5,26.3,72.5,25.1z" />
+                        <path class="ld-a" fill="#39C0C4" d="M78.2,35H76l8.6-19.8h2L95.1,35h-2.2l-2.2-5.2H80.4L78.2,35z M81.1,27.9h8.7l-4.4-10.5L81.1,27.9z" />
+                        <path class="ld-d" fill="#39C0C4" d="M98,15.2h6.6c1.2,0,2.5,0.2,3.7,0.6c1.2,0.4,2.4,1,3.4,1.9c1,0.8,1.8,1.9,2.4,3.1s0.9,2.7,0.9,4.3
+	c0,1.7-0.3,3.1-0.9,4.3s-1.4,2.3-2.4,3.1c-1,0.8-2.1,1.5-3.4,1.9c-1.2,0.4-2.5,0.6-3.7,0.6H98V15.2z M100,33.2h4
+	c1.5,0,2.8-0.2,3.9-0.7c1.1-0.5,2-1.1,2.8-1.8c0.7-0.8,1.3-1.6,1.6-2.6s0.5-2,0.5-3c0-1-0.2-2-0.5-3c-0.4-1-0.9-1.8-1.6-2.6
+	c-0.7-0.8-1.6-1.4-2.8-1.8c-1.1-0.5-2.4-0.7-3.9-0.7h-4V33.2z" />
+                        <path class="ld-i" fill="#39C0C4" d="M121.2,35h-2V15.2h2V35z" />
+                        <path class="ld-n" fill="#39C0C4" d="M140.5,32.1L140.5,32.1l0.1-16.9h2V35h-2.5l-11.5-17.1h-0.1V35h-2V15.2h2.5L140.5,32.1z" />
+                        <path class="ld-g" fill="#39C0C4" d="M162.9,18.8c-0.7-0.7-1.5-1.3-2.5-1.7c-1-0.4-2-0.6-3.3-0.6c-1.3,0-2.4,0.2-3.4,0.7s-1.9,1.1-2.6,1.9
+	c-0.7,0.8-1.3,1.7-1.6,2.8c-0.4,1-0.6,2.1-0.6,3.3c0,1.2,0.2,2.3,0.6,3.3c0.4,1,0.9,2,1.6,2.7c0.7,0.8,1.6,1.4,2.6,1.9
+	s2.2,0.7,3.4,0.7c1.1,0,2.1-0.1,3.1-0.4c0.9-0.2,1.7-0.5,2.3-0.9v-6h-4.6v-1.8h6.6v9c-1.1,0.7-2.2,1.1-3.5,1.5
+	c-1.3,0.3-2.5,0.5-3.9,0.5c-1.5,0-2.9-0.3-4.1-0.8s-2.4-1.2-3.3-2.2c-0.9-0.9-1.6-2-2.1-3.3s-0.8-2.7-0.8-4.2s0.3-2.9,0.8-4.2
+	c0.5-1.3,1.2-2.4,2.2-3.3c0.9-0.9,2-1.6,3.3-2.2c1.3-0.5,2.6-0.8,4.1-0.8c1.6,0,3,0.2,4.1,0.7s2.2,1.1,3,2L162.9,18.8z" />
+                    </g>
+                </svg>
+
+                <svg width='182px' height='182px' xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"
+                     preserveAspectRatio="xMidYMid" class="uil-ripple">
+                    <rect x="0" y="0" width="100" height="100" fill="none"
+                          class="bk"></rect>
+                    <g>
+                        <animate attributeName="opacity" dur="4s"
+                                 repeatCount="indefinite" begin="0s" keyTimes="0;0.33;1"
+                                 values="1;1;0"></animate>
+                        <circle cx="50" cy="50" r="40" stroke="#eeeeee" fill="none" stroke-width="2" stroke-linecap="round">
+                            <animate attributeName="r" dur="4s"
+                                     repeatCount="indefinite" begin="0s"
+                                     keyTimes="0;0.33;1" values="0;22;44">
+                            </animate>
+                        </circle>
+                    </g>
+                    <g>
+                        <animate attributeName="opacity" dur="4s" repeatCount="indefinite" begin="2s" keyTimes="0;0.33;1" values="1;1;0">
+                        </animate>
+                        <circle cx="50" cy="50" r="40" stroke="#eeeeee" fill="none" stroke-width="2" stroke-linecap="round">
+                            <animate attributeName="r" dur="4s" repeatCount="indefinite" begin="2s" keyTimes="0;0.33;1" values="0;22;44"></animate>
+                        </circle>
+                    </g>
+                </svg>
+            </div>
+        </div>
+    </div>
+
+    @Scripts.Render("~/bundles/jquery")
+    @Scripts.Render("~/bundles/bootstrap")
+    @Scripts.Render("~/bundles/swt")
+    @Scripts.Render("~/bundles/erpsc")
+    @Scripts.Render("~/bundles/dtbjs")
+    @RenderSection("scripts", required: false)
+
+</body>
+</html>

@@ -1,0 +1,31 @@
+﻿@model IEnumerable<ErpOnline.Models.InvProductReserve>
+
+<table id="tblReserved" class="table table-bordered table-hover table-responsive table-striped dataTable no-footer display responsive nowrap" cellspacing="0" width="100%">
+    <thead>
+        <tr>
+            <th data-orderable="false">Location</th>
+            <th data-orderable="false">Quantity</th>
+            <th data-orderable="false">Reserved Qty</th>
+            <th data-orderable="false">Total Qty</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+            {
+            <tr id="@item.id">
+                <td>
+                    @item.strLocation
+                </td>
+                <td>
+                    @item.qty
+                </td>
+                <td>
+                    @item.reservedQty
+                </td>
+                <td>
+                    @item.totalQty
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

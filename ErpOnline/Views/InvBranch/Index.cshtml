@@ -1,0 +1,281 @@
+﻿@model IEnumerable<ErpOnline.Models.Inventory.InvBranchModels>
+
+@{
+    ViewBag.Title = "Branch";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    h3 {
+        color: red;
+    }
+</style>
+<div class="row">
+    <div class="col-xs-5">
+        <h3 style="margin-top:0px">Branch / Warehouse</h3>
+    </div>
+    <div class="col-xs-7">
+        <div class="row pull-right" style="margin-right:0px">
+            <div>
+                <button type="button" class="btn btn-default" id="btnAdd" style="margin-left: 10px;"><span class="glyphicon glyphicon-plus"></span> Add</button>
+                <button type="button" class="btn btn-default" id="btnEdit" style="margin-left: 10px;"><span class="glyphicon glyphicon-pencil"></span> Edit</button>
+                <button type="button" class="btn btn-default" id="btnDelete" style="margin-left: 10px;"><span class="glyphicon glyphicon-trash"></span> Delete</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- /. ROW  -->
+<hr style="margin-top: 10px;" />
+
+<div class="col-md-12">
+    <div id="divBranchTable">
+    </div>
+</div>
+
+
+
+<!--  ****************************Modal Form **************************************  -->
+<div class="modal fade" id="AddEdit" role="dialog">
+    <div class="modal-dialog" style="margin-top:40px">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" style="margin-top: 0px; margin-right: 0px;">&times;</button>
+                <h4 id="lblTitle"><span class="glyphicon glyphicon-flag"></span> </h4>
+            </div>
+
+            @*<form action="@Url.Action("Create","InvBranch")" method="post" role="form" id="frmPurchaseOrder">*@
+                <form role="form" id="frmBranchDetail">
+                    <div class="panel-body" style="padding:20px 30px;">
+                        <div class="form-horizontal" style="margin-top:5px">
+                            <div class="col-md-12">
+
+                                <div class="col-md-12" style="padding: 0px; margin-left: -15px; width: 493px;">
+                                    <div class="form-group col-md-4">
+                                        <label for="branchID"><span class="glyphicon glyphicon-flag"></span> Branch ID</label>
+                                        <input type="text" id="branchId" name="branchId" class="form-control" readonly />
+                                    </div>
+                                    <div class="form-group col-md-8" style="margin-left:-10px">
+                                        <label for="branchName"><span class="glyphicon glyphicon-flag"></span> Name</label>
+                                        <input type="text" id="branchName" name="branchName" class="form-control" required />
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="branchAdd1"><span class="glyphicon glyphicon-info-sign"></span> Address </label>
+                                    <textarea class="form-control" rows="3" id="branchAdd" name="branchAdd" placeholder="Address" required></textarea>
+                                </div>
+
+                                <div class="col-md-12" style="padding: 0px; margin-left: -15px; width: 493px;">
+                                    <div class="form-group col-md-6">
+                                        <label for="phone"><span class="glyphicon glyphicon-phone"></span> phone</label>
+                                        <input type="text" id="phone" name="phone" class="form-control" />
+                                    </div>
+                                    <div class="form-group col-md-6" style="margin-left:-10px">
+                                        <label for="phone2"><span class="glyphicon glyphicon-phone"></span> phone 2</label>
+                                        <input type="text" id="phone2" name="phone2" class="form-control" />
+                                    </div>
+                                </div>
+                            </div>
+
+
+                            <input type="hidden" id="bId" name="bId" />
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <div class="pull-right">
+                            <button type="submit" class="btn btn-success pull-left" id="btnSave"><span class="glyphicon glyphicon-save"></span> Save</button>
+                            <button type="submit" class="btn btn-danger pull-left" onclick="this.form.reset()" data-dismiss="modal"><span class="glyphicon glyphicon-remove"></span> Cancel</button>
+                        </div>
+
+                    </div>
+                    <div style="height:10px;background:#3e60ad;border-radius: 0px 0px 5px 5px;"></div>
+                </form>
+
+</div>
+    </div>
+</div>
+
+
+
+
+
+
+
+@section scripts{
+    <script type="text/javascript">
+        $(document).ready(function () {
+            GenerateTable();
+            $('#branchDataTable').DataTable();
+        });
+
+        function GenerateTable() {
+            $('#modalLoad').modal("show");
+            $.ajax({
+                url: '@Url.Action("GetBranchList", "InvBranch")',
+                type: "GET",
+                success: function (result) {
+                    $('#modalLoad').modal("hide");
+                    if (result.status) {
+                        $('#divBranchTable').html(result.data);
+                    } else {
+                        $('#divBranchTable').html("<p style=\"text-align:center\">" + result.msg + "</p>");
+                    }
+                    $('.modal-backdrop').remove();
+                    $('#branchDataTable').DataTable();
+                },
+                error: function () {
+                }
+            });
+        }
+
+        //--------------Add ---------------
+
+        $('#btnAdd').on("click", function () {
+            //$('#modalLoad').modal("hide");
+            $('#AddEdit').modal("show");
+            $('#lblTitle').html("<span class=\"glyphicon glyphicon-flag\"></span> Add Branch");
+        });
+
+
+        //--------------modify-------------
+        $('#btnEdit').on("click", function (e) {
+            $('#modalLoad').modal("show");
+            var Id = $('#bId').val();
+            if (!Id) {
+                swal({ title: "No Item selected!", text: "Please select from the list!", type: "warning" });
+                $('#modalLoad').modal("hide");
+                return false;
+            } else {
+                $('#AddEdit').modal("show");
+                $('#lblTitle').html("<span class=\"glyphicon glyphicon-pencil\"></span> Edit Branch");
+                $.ajax({
+                    url: '@Url.Action("Edit", "InvBranch")',
+                    type: "GET",
+                    data: { id: Id },
+                    success: function (result) {
+                        $('#modalLoad').modal("hide");
+                        if (result.status) {
+                            $('#branchId').val(result.data[0].branchID);
+                            $('#branchName').val(result.data[0].name);
+                            $('#branchAdd').val(result.data[0].address);
+                            $('#phone').val(result.data[0].phone);
+                            $('#phone2').val(result.data[0].phone2);
+
+                        } else {
+                            $('#divBranchTable').html("<p style=\"text-align:center\">" + result.msg + "</p>");
+                        }
+                    },
+                    error: function () {
+                        alert('test2');
+                    }
+                });
+            }
+         });
+        //------------------
+
+        //Save Modal form
+        $('#btnSave').on("click", function () {
+            $('#modalLoad').modal("show");
+            var model =  {
+                branchID: $('#branchId').val(),
+                name: $('#branchName').val(),
+                address: $('#branchAdd').val(),
+                phone: $('#phone').val(),
+                phone2: $('#phone2').val()
+            };
+            $.ajax({
+                url: '@Url.Action("Edit", "InvBranch")',
+                type: "POST",
+                data: { model: model },
+                success: function (result) {
+                    $('#modalLoad').modal("hide");
+                    if (result.status) {
+                        swal({ title: "Success!", text: result.msg, type: "Success" });
+                        GenerateTable();
+                    } else {
+                        swal({ title: "Warning!", text: result.msg, type: "warning" });
+                    }
+                },
+            });
+        });
+        //--------------------
+        //Delete
+        $('#btnDelete').on("click", function (e) {
+            var id = $('#bId').val();
+            if (!id) {
+                swal({ title: "Delete!", text: "Please select Branch to delete!", type: "warning" });
+                return false;
+            }
+            else {
+                $.ajax({
+                    url: '@Url.Action("Delete", "InvBranch")',
+                    type: "POST",
+                    data: { id: id },
+                    success: function (result) {
+                        $('#modalLoad').modal("hide");
+                        if (result.status) {
+                            swal({ title: "Deleted!", text: "Successfuly deleted!", type: "success" });
+                            GenerateTable();
+                        } else {
+                            swal({ title: "Warning!", text: result.msg, type: "warning" });
+                        }
+                    },
+                });
+            }
+        });
+        //-------------------
+
+        $(document).on("click", "#divBranchTable tr", function (e) {
+            var arr = $('#branchDataTable').dataTable().fnGetData($(this));
+            var Id = arr[0];
+            POid1 = Id;
+            $('#bId').val(Id);
+
+            if ($(this).hasClass('active')) {
+                $(this).removeClass('active');
+                $('#bId').val(0);
+            } else {
+                $(this).addClass('active').siblings().removeClass('active');
+            }
+        });
+
+        $(document).on("dblclick", "#divBranchTable tr", function (e) {
+            var arr = $('#branchDataTable').dataTable().fnGetData($(this));
+            var Id = arr[0];
+            $('#AddEdit').modal("show");
+            $('#lblTitle').html("<span class=\"glyphicon glyphicon-pencil\"></span> Edit Branch");
+            $.ajax({
+                url: '@Url.Action("Edit", "InvBranch")',
+                type: "GET",
+                data: { id: Id },
+                success: function (result) {
+                    $('#modalLoad').modal("hide");
+                    if (result.status) {
+                        $('#branchId').val(result.data[0].branchID);
+                        $('#branchName').val(result.data[0].name);
+                        $('#branchAdd').val(result.data[0].address);
+                        $('#phone').val(result.data[0].phone);
+                        $('#phone2').val(result.data[0].phone2);
+
+                    } else {
+                        $('#divBranchTable').html("<p style=\"text-align:center\">" + result.msg + "</p>");
+                    }
+                },
+                error: function () {
+                    alert('test2');
+                }
+            });
+
+            //location.href = "InvBranch/Edit?id=" + Id;
+        
+        });
+
+        
+ 
+
+
+    </script>
+}

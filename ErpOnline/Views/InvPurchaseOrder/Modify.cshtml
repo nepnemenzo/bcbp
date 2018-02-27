@@ -1,0 +1,555 @@
+﻿@model ErpOnline.Models.Inventory.InvPurchaseOrderModel
+
+@{
+    ViewBag.Title = "Purchase Order";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="row">
+    <div class="col-xs-6">
+        <h1 style="margin-top:0px">PURCHASE ORDER</h1>
+    </div>
+    <div class="col-xs-6">
+        <div class="row pull-right" style="margin-right:0px">
+            <div>
+                <button type="button" class="btn btn-success" id="btnSave" style="margin-left: 10px;"><span class="glyphicon glyphicon-save"></span> Save</button>
+                <button type="button" class="btn btn-warning" id="btnCancel" style="margin-left: 10px;"><span class="glyphicon glyphicon-remove"></span> Cancel</button>
+                <a href="@Url.Action("Index","InvPurchaseOrder")" class="btn btn-primary" style="margin-left: 10px;"><span class="glyphicon glyphicon-arrow-left"></span> Back</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+
+    <div class="form-horizontal">
+        @*<h4>InvPurchaseOrderModel</h4>*@
+        <hr />
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
+        <div class="col-md-12">
+            <div class="col-xs-4">
+                <h3 style="margin-top:0px">Kingmark Marketing</h3>
+                Unit 123, Kasambagan <br />
+                Mandaue City, Philippines <br />
+                Phone # : 1234 556 34<br />
+            </div>
+            <div class="col-xs-offset-8">
+                <div style="margin-bottom:5px">
+                    @Html.LabelFor(model => model.poStringId, htmlAttributes: new { @class = "control-label col-xs-7" })
+                    <div class="col-md-offset-7">
+                        @Html.EditorFor(model => model.poStringId, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                        @Html.ValidationMessageFor(model => model.poStringId, "", new { @class = "text-danger" })
+                        @*<label id="lblPoId" style="text-align:left;font-size: large;font-weight: bolder;"></label>*@
+                        <input type="hidden" name="poID" id="poID" value="@Model.poId" readonly>
+                    </div>
+                </div>
+                <div style="margin-bottom:5px">
+                    @Html.LabelFor(model => model.poDateCreated, htmlAttributes: new { @class = "control-label col-xs-7" })
+                    <div class="col-md-offset-7">
+                        @Html.EditorFor(model => model.poDateCreated, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                        @Html.ValidationMessageFor(model => model.poDateCreated, "", new { @class = "text-danger" })
+                        @*<label id="DateCreated" style="text-align:left"></label>*@
+                    </div>
+                </div>
+                <div>
+                    @Html.LabelFor(model => model.poStatus, htmlAttributes: new { @class = "control-label col-md-7" })
+                    <div class="col-md-offset-7">
+                        <select class="selectpicker form-control" id="poStatus" name="Status"  data-live-search="true" required>
+                            <option></option>
+                            @foreach (var item in Model.listStatus)
+                            {
+                                <option data-tokens="@item.Name" value="@item.id">@item.Name</option>
+                            }
+                        </select>
+                        <input type="hidden" name="statusId" id="statusId" readonly>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <hr style="margin-top: 13px;" />
+
+
+        <div class="col-md-12" style="margin-top:10px">
+            <div class="col-xs-4">
+
+                <button type="button" class="btn btn-primary btn-block" id="btnSupplier"><span class="glyphicon glyphicon-user"></span> SUPPLIER</button>
+ 
+                <div style="margin-top:5px">
+                    @Html.LabelFor(model => model.SuppDetails.SuppName, htmlAttributes: new { @class = "control-label col-xs-4", @style = "text-align: left" })
+                    <div class="col-xs-offset-4">
+                        <select class="selectpicker form-control" name="supplierlist" id="supplierlist" data-live-search="true" required>
+                            @foreach (var item in Model.listOfSupplier)
+                            {
+                                <option data-tokens="@item.SuppName" value="@item.SuppID" data-name="@item.SuppName" data-add1="@item.SuppAdd1" data-add2="@item.SuppAdd2" data-Telnum1="@item.SuppTelnum1"> @item.SuppName</option>
+                            }
+                        </select>
+                        <input type="hidden" name="suppId" id="suppId" readonly>
+                    </div>
+                </div>
+
+
+                <div style="margin-top:5px">
+                    @Html.LabelFor(model => model.SuppDetails.SuppAdd1, htmlAttributes: new { @class = "control-label col-xs-4", @style = "text-align: left" })
+                    <div class="col-xs-offset-4">
+                        @Html.EditorFor(model => model.SuppDetails.SuppAdd1, new { htmlAttributes = new { @class = "form-control" } })
+                        @Html.ValidationMessageFor(model => model.SuppDetails.SuppAdd1, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+                <div style="margin-top:5px">
+                    @Html.LabelFor(model => model.SuppDetails.SuppAdd2, htmlAttributes: new { @class = "control-label col-xs-4", @style = "text-align: left" })
+                    <div class="col-xs-offset-4">
+                        @Html.EditorFor(model => model.SuppDetails.SuppAdd2, new { htmlAttributes = new { @class = "form-control" } })
+                        @Html.ValidationMessageFor(model => model.SuppDetails.SuppAdd2, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+                <div style="margin-top:5px">
+                    @Html.LabelFor(model => model.SuppDetails.SuppTelnum1, htmlAttributes: new { @class = "control-label col-xs-4", @style = "text-align: left" })
+                    <div class="col-xs-offset-4">
+                        @Html.EditorFor(model => model.SuppDetails.SuppTelnum1, new { htmlAttributes = new { @class = "form-control" } })
+                        @Html.ValidationMessageFor(model => model.SuppDetails.SuppTelnum1, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="col-xs-offset-8">
+
+                <button type="button" class="btn btn-primary btn-block" id="btnBranch"><span class="glyphicon glyphicon-road"></span> SHIP TO</button>
+                <div style="margin-top:5px">
+                    @Html.LabelFor(model => model.BranchDetails.name, htmlAttributes: new { @class = "control-label col-xs-4", @style = "text-align: left" })
+                    <div class="col-xs-offset-4">
+                        <select class="selectpicker form-control" name="branchlist" id="branchlist" data-live-search="true" required>
+                            @foreach (var item in Model.listOfBranch)
+                            {
+                                <option data-tokens="@item.name" value="@item.branchID" data-name="@item.name" data-add="@item.address" data-phone="@item.phone" data-phone2="@item.phone2"> @item.branchID - @item.name</option>
+                            }
+                        </select>
+                        <input type="hidden" name="branchId" id="branchId" readonly>
+                    </div>
+                </div>
+ 
+                <div style="margin-top:5px">
+                    @Html.LabelFor(model => model.BranchDetails.address, htmlAttributes: new { @class = "control-label col-xs-4", @style = "text-align: left" })
+                    <div class="col-xs-offset-4">
+                        @Html.EditorFor(model => model.BranchDetails.address, new { htmlAttributes = new { @class = "form-control" } })
+                        @Html.ValidationMessageFor(model => model.BranchDetails.address, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+                <div style="margin-top:5px">
+                    @Html.LabelFor(model => model.BranchDetails.phone, htmlAttributes: new { @class = "control-label col-xs-4", @style = "text-align: left" })
+                    <div class="col-xs-offset-4">
+                        @Html.EditorFor(model => model.BranchDetails.phone, new { htmlAttributes = new { @class = "form-control" } })
+                        @Html.ValidationMessageFor(model => model.BranchDetails.phone, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+                <div style="margin-top:5px">
+                    @Html.LabelFor(model => model.BranchDetails.phone2, htmlAttributes: new { @class = "control-label col-xs-4", @style = "text-align: left" })
+                    <div class="col-xs-offset-4">
+                        @Html.EditorFor(model => model.BranchDetails.phone2, new { htmlAttributes = new { @class = "form-control" } })
+                        @Html.ValidationMessageFor(model => model.BranchDetails.phone2, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-12" style="margin-top:20px">
+            <input type="hidden" id="forUpdate" name="forUpdate" />
+            @*<div id="divpoItemsTable">
+            </div>*@
+            
+            <div class="form-group" style="background-color:lightgray">
+                <label class="control-label bookinfo" style="font-size: 20px; padding: 2px;">&nbsp; Items</label>
+                <div class="row pull-right" style="margin-right:5px; padding:5px">
+                    <button type="button" class="btn btn-success btn-xs" id="btnAdd" style="margin-left: 10px;"><span class="glyphicon glyphicon-plus"></span> </button>
+                    <button type="button" class="btn btn-warning btn-xs" id="btnEdit" style="margin-left: 10px;"><span class="glyphicon glyphicon-pencil"></span> </button>
+                    <button type="button" class="btn btn-danger btn-xs" id="btnRemove" style="margin-left: 10px;"><span class="glyphicon glyphicon-trash"></span> </button>
+                </div>
+            </div>
+            <div id="divpoItemsTable">
+            </div>
+
+            
+        </div>
+
+
+        <div class="col-md-12" style="padding-right:0px">
+            <div class="col-xs-8">
+
+                <div class="form-group col-md-11" style="border:solid; border-color:gray; margin: 10px -245.012px 0px 0px; width: 100%; height: 150px;resize: none;">
+                    <div class="form-group" style="background-color:lightgray">
+                        <label class="control-label bookinfo">&nbsp; Remarks</label>
+                    </div>
+                    @Html.TextAreaFor(model => model.Remarks, htmlAttributes: new { @class = "form-control", @style = "height:100px" })
+                </div>
+            </div>
+
+            <div class="col-xs-4">
+                <div class="form-group" style="margin-bottom:5px; margin-top:5px">
+                    @Html.LabelFor(model => model.poGrossAmount, htmlAttributes: new { @class = "control-label col-md-8", @style = "text-align:right" })
+                    <div class="col-md-4">
+                        @Html.EditorFor(model => model.poGrossAmount, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly", @style = "text-align: right;" } })
+                        @Html.ValidationMessageFor(model => model.poGrossAmount, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+  
+                <div class="form-group" style="margin-bottom:5px">
+                    @Html.LabelFor(model => model.poVatAmount, htmlAttributes: new { @class = "control-label col-md-8", @style = "text-align:right" })
+                    <div class="col-md-4">
+                        @Html.EditorFor(model => model.poVatAmount, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly", @style = "text-align: right" } })
+                        @Html.ValidationMessageFor(model => model.poVatAmount, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+                <div class="form-group" style="margin-bottom:5px">
+                    @Html.LabelFor(model => model.poDisCountAmount, htmlAttributes: new { @class = "control-label col-md-8", @style = "text-align:right" })
+                    <div class="col-md-4">
+                        @Html.EditorFor(model => model.poDisCountAmount, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly", @style = "text-align: right" } })
+                        @Html.ValidationMessageFor(model => model.poDisCountAmount, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+
+                <div class="form-group" style="margin-bottom:5px">
+                        @Html.LabelFor(model => model.poShippingAmount, htmlAttributes: new { @class = "control-label col-md-8", @style = "text-align:right" })
+                    <div class="col-md-4">
+                        @Html.EditorFor(model => model.poShippingAmount, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly", @style = "text-align: right" } })
+                        @Html.ValidationMessageFor(model => model.poShippingAmount, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+                <div class="form-group" style="margin-bottom:5px">
+                        @Html.LabelFor(model => model.poOtherAmount, htmlAttributes: new { @class = "control-label col-md-8", @style = "text-align:right" })
+                    <div class="col-md-4">
+                        @Html.EditorFor(model => model.poOtherAmount, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly", @style = "text-align: right" } })
+                        @Html.ValidationMessageFor(model => model.poOtherAmount, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+
+                <div class="form-group" style="margin-top:5px">
+                        @Html.LabelFor(model => model.poNetAmount, htmlAttributes: new { @class = "control-label col-md-8", @style = "text-align:right" })
+                    <div class="col-md-4">
+                        @Html.EditorFor(model => model.poNetAmount, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly", @style = "text-align: right" } })
+                        @Html.ValidationMessageFor(model => model.poNetAmount, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+
+
+        <!--   --------------------------------------------------------- Modal Add or Edit of Items ---------------------------------------------------------------------------------   -->
+        <div class="modal fade" id="modalAddItem" role="dialog" data-backdrop="static" data-keyboard="false">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <form id="AddEditItem" class="form-horizontal" role="form">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" style="margin-top: 0px; margin-right: 0px;">&times;</button>
+                            <h4 id="hTransTitle">Add/Edit Product item</h4>
+                        </div>
+                        <div class="panel-body">
+
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="TranMode" id="TranMode" value="1">
+                            <div class="div-border">
+                                <div class="form-group">
+                                    <label class="control-label col-sm-4 text-left" for="pwd">Product </label>
+                                    <div class="col-sm-8">
+                                        <select class="selectpicker" name="ProductItem" id="ProductItem" data-live-search="true" required>
+                                            <option selected>--Select Item--</option>
+                                            @foreach (var item in Model.listOfProducts)
+                                            {
+                                                <option data-tokens="@item.productCode" value="@item.id" data-name="@item.name" data-desc="@item.description" data-itemPath="@item.itemPath" data-sellingPrice="@item.sellingPrice"> @item.productCode.Trim() - @item.name</option>
+                                            }
+                                        </select>
+                                        <input type="hidden" name="productId" id="productId" readonly>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="control-label col-sm-4 text-left" for="pwd">Description</label>
+                                    <div class="col-sm-8">
+                                        <input type="text" name="ItemDesc" id="ItemDesc" readonly>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="control-label col-sm-4 text-left" for="pwd">Description Ext</label>
+                                    <div class="col-sm-8">
+                                        <input type="text" name="ItemDesc2" id="ItemDesc2" readonly>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-12 div-border">
+                                <div class="col-md-8">
+                                    <div class="form-group">
+                                        <label class="control-label col-sm-6 text-left" for="pwd">Quantity</label>
+                                        <div class="col-sm-6">
+                                            <input type="number" step="0.01" name="Quantity" id="Quantity" required style="text-align:right">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="control-label col-sm-6 text-left" for="pwd">Unit price</label>
+                                        <div class="col-sm-6">
+                                            <input type="number" step="0.01" name="UnitPrice" id="UnitPrice" readonly style="text-align:right">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="control-label col-sm-6 text-left" for="pwd">Total</label>
+                                        <div class="col-sm-6">
+                                            <input type="number" step="0.01" name="unitTotal" id="unitTotal" readonly style="text-align:right">
+                                        </div>
+                                    </div>
+
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="divImg" style="padding:5px;width: 135px;height: 111px;">
+                                        <div style="height:100px;width: 123px;">
+                                            <img id="previewing" src="" alt="" style="max-width: 100%; height: inherit;border-radius: 5px;" />
+                                        </div>
+
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <div class="row pull-right" style="margin-right:0px">
+                                <button type="button" class="btn btn-success" id="btnModalSave"style="margin-left: 10px;"><span class="glyphicon glyphicon-check"></span> Save</button>
+                                <button type="button" class="btn btn-primary" id="btnClear" style="margin-left: 10px;"><span class="glyphicon glyphicon-eject"></span> Clear</button>
+                                <button type="button" class="btn btn-danger" data-dismiss="modal" style="margin-left: 10px;"><span class="glyphicon glyphicon-remove"></span> Close</button>
+                            </div>
+                        </div>
+                    </form>
+                    <div class="div-modal-foot"></div>
+                </div>
+            </div>
+        </div>
+
+
+        @section scripts{
+            <script type="text/javascript">
+                $(document).ready(function () {
+                    $('#supplierlist option[value="' + @Model.SuppDetails.SuppID + '"]').attr('selected', 'selected');
+                    $('#branchlist option[value="' + @Model.BranchDetails.branchID + '"]').attr('selected', 'selected');
+                    $('#poStatus option[value="' + @Model.poStatus + '"]').attr('selected', 'selected');
+                    $('#suppId').val(@Model.poSupplier);
+                    GenerateTable();
+                    $('#poItemsTable').DataTable({
+                        "bPaginate": false,
+                        "bFilter": false,
+                        "bInfo": false
+                    });
+                });
+
+                function GenerateTable() {
+                    $('#modalLoad').modal("show");
+                    $.ajax({
+                        url: '@Url.Action("GetPurchaseOrderITEMList", "InvPurchaseOrder")',
+                        type: "GET",
+                        data: { headerID: $('#poID').val() },
+                        success: function (result) {
+                            $('#modalLoad').modal("hide");
+                            if (result.status) {
+                                $('#divpoItemsTable').html(result.data);
+                                $('#lblPoId').html(result.headerData.poStringId);
+                                $('#DateCreated').html(result.headerData.poDateCreated);
+                                $('#poDateCreated').val(result.headerData.poDateCreated);
+                                $('#poStatus').val(result.headerData.poStatus);
+                                $('#poGrossAmount').val(result.headerData.poGrossAmount);
+                                $('#poVatAmount').val(result.headerData.poVatAmount);
+                                $('#Remarks').val(result.headerData.Remarks);
+                                $('#supplierlist').val(result.headerData.SuppName);
+
+                            } else {
+                                $('#divpoItemsTable').html("<p style=\"text-align:center\">" + result.msg + "</p>");
+                            }
+                            $('.modal-backdrop').remove();
+                            $('#poItemsTable').DataTable({
+                                "bPaginate": false,
+                                "bFilter": false,
+                                "bInfo": false
+
+                            });
+                        },
+                        error: function () {
+
+                        }
+                    });
+                }
+
+
+
+                // ------------- Edit bnt ----------------------s
+                $('#btnEdit').on("click", function (e) {
+                    swal({ title: "No Code yet!", text: "Function to be follow!", type: "warning" });
+                    return false;
+                });
+                // ------------- Delete bnt ----------------------s
+                $('#btnRemove').on("click", function (e) {
+                    swal({ title: "No Code yet!", text: "Function to be follow!", type: "warning" });
+                    return false;
+                });
+
+
+                //------Clear the modal form-------------------------------------
+                $('#btnClear').on("click", function () {
+                    ClearModal();
+
+                })
+                function ClearModal() {
+                    $('#ItemDesc').val('');
+                    $('#ItemDesc2').val('');
+                    $('#previewing').attr('src', '');
+                    $('#UnitPrice').val('0.00');
+                    $('#Quantity').val('0.00');
+                    $('#unitTotal').val('0.00');
+                }
+                //----------------------------------
+
+                //------Adding/editing product items----------------------------------------------------
+                $('#btnAdd').on("click", function () {
+                    $('#modalAddItem').modal("show");
+                    ClearModal();
+                })
+
+                //Form Save
+                $('#btnSave').on("click", function (e) {
+                    alert($('#branchId').val());
+
+                    var model1 = {
+                        poId: $('#poStringId').val(),
+                        poSupplier: $('#suppId').val(),
+                        poShipTo: $('#branchId').val(),
+                        Remarks: $('#Remarks').val(),
+                        poStatus: $('#statusId').val()
+                    };
+                    $.ajax({
+                        url: '@Url.Action("Create", "InvPurchaseOrder")',
+                        type: "POST",
+                        data: { po: model1 },
+                        success: function (result) {
+                            $('#modalLoad').modal("hide");
+                            if (result.status) {
+                                $('#unitTotal').val(result.data);
+                            } else {
+                                swal({ title: "Warning!", text: result.msg, type: "warning" });
+                            }
+                        },
+                        error: function () {
+                            swal({ title: "Warning!", text: result.msg, type: "warning" });
+                        }
+                    });
+                });
+
+                // Modal Save
+                $('#btnModalSave').on("click", function () {
+                    var headId = $('#poStringId').val();
+                    var PODetailsModel = {
+                        detItemNumber: $('#productId').val(),
+                        detItemQty: $('#Quantity').val(),
+                        detItemPrice: $('#UnitPrice').val(),
+                        detItemTotalAmount: $('#unitTotal').val(),
+                        detIsDeducted: 0,
+                        detHeaderID: $('#poStringId').val()
+                    }
+                    $.ajax({
+                        url: '@Url.Action("SaveItem", "InvPurchaseOrder")',
+                        type: "POST",
+                        data: { po: PODetailsModel },
+                        success: function (result) {
+                            $('#modalLoad').modal("hide");
+                            if (result.status) {
+                                $('#unitTotal').val(result.data);
+                                GenerateTable();
+                                $.ajax({
+                                    url: '@Url.Action("ComputeItemTotals", "InvPurchaseOrder")',
+                                    type: "Get",
+                                    data: { headerId: headId },
+                                    success: function (resultdata) {
+                                        if (resultdata.status) {
+                                            $('#poGrossAmount').val(resultdata.data.poGrossAmount);
+                                            $('#poVatAmount').val(resultdata.data.poVatAmount);
+                                            $('#poDisCountAmount').val(resultdata.data.poDisCountAmount);
+                                            $('#poShippingAmount').val(resultdata.data.poShippingAmount);
+                                            $('#poOtherAmount').val(resultdata.data.poOtherAmount);
+                                            $('#poNetAmount').val(resultdata.data.poNetAmount);
+                                        }
+                                    }
+                                });
+                                $('#modalAddItem').modal("hide");
+                            }
+                            //swal({ title: "Warning!", text: result.msg, type: "warning" });
+                        },
+                        error: function () {
+                            swal({ title: "Warning!", text: result.msg, type: "warning" });
+                        }
+                    });
+                });
+
+                $('#ProductItem').on("change", function (e) {
+                    var selected = $(this).find('option:selected');
+                    var imgPath = "/Images/Items/" + selected.data('itempath')
+
+                    $('#productId').val(selected.val());
+
+                    $('#ItemDesc').val(selected.data('name'));
+                    $('#ItemDesc2').val(selected.data('desc'));
+                    $('#previewing').attr('src', imgPath);
+                    $('#UnitPrice').val(selected.data('sellingprice'));
+
+                    $('#Quantity').val('0.00');
+                    $('#unitTotal').val('0.00');
+
+                })
+
+                $('#supplierlist').on("change", function (e) {
+                    var selected = $(this).find('option:selected');
+                    $('#suppId').val(selected.val());  //id
+                    $('#SuppDetails_SuppAdd1').val(selected.data('add1'));
+                    $('#SuppDetails_SuppAdd2').val(selected.data('add2'));
+                    $('#SuppDetails_SuppTelnum1').val(selected.data('Telnum1'));
+
+                });
+
+
+                $('#branchlist').on("change", function (e) {
+                    var selected = $(this).find('option:selected');
+                    $('#BranchDetails_address').val(selected.data('add'));
+                    $('#BranchDetails_phone').val(selected.data('phone'));
+                    $('#BranchDetails_phone2').val(selected.data('phone2'));
+                    $('#branchId').val(selected.val());  //id
+                });
+
+                $('#Quantity').on("change", function (e) {
+                    $('#modalLoad').modal("show");
+                    $.ajax({
+                        url: '@Url.Action("ComputeItemTotal", "InvPurchaseOrder")',
+                        type: "GET",
+                        data: { Quantity: $('#Quantity').val(), UnitPrice: $('#UnitPrice').val() },
+                        success: function (result) {
+                            $('#modalLoad').modal("hide");
+                            if (result.status) {
+                                $('#unitTotal').val(result.data);
+                            }
+                        },
+                        error: function () {
+                        }
+                    });
+                });
+                $('#poStatus').on("change", function (e) {
+                    var selected = $(this).find('option:selected');
+                    $('#statusId').val(selected.val());
+                });
+
+
+            </script>
+        }
+
+    </div>
+
+
+
+
+}
+

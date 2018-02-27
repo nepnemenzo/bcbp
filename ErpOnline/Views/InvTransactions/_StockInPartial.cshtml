@@ -1,0 +1,39 @@
+﻿@model IEnumerable<ErpOnline.Models.InvTransactionRresponse>
+
+<table id="tblStockIn" class="table table-bordered table-hover table-responsive table-striped dataTable no-footer">
+    <thead>
+        <tr>
+            <th data-orderable="false">Reference #</th>
+            <th data-orderable="false">Item Name</th>
+            <th data-orderable="false">Trans Amount</th>
+            <th data-orderable="false">Item Location</th>
+            <th data-orderable="false">Post Date</th>
+            <th data-orderable="false">Comment</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+            {
+            <tr>
+                <td>
+                    @item.transRef
+                </td>
+                <td>
+                    @item.itemName
+                </td>
+                <td>
+                    @item.transAmount
+                </td>
+                <td>
+                    @item.itemLoc
+                </td>
+                <td>
+                    @item.transPostDate
+                </td>
+                <td>
+                    @item.transComment
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

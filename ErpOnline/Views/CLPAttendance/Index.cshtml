@@ -1,0 +1,206 @@
+﻿
+@model IEnumerable<bcbp_101.Models.bcbp.CLPAttendanceModel>
+
+@{
+    ViewBag.Title = "clpAttendance";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    h3 {
+        color: red;
+    }
+</style>
+<div class="row">
+    <div class="col-xs-5">
+        <h3 style="margin-top:0px">CLP Attendance</h3>
+    </div>
+    <div class="col-xs-7">
+        <div class="row pull-right" style="margin-right:0px">
+            <div>
+                <a type="button" class="btn btn-default link" href="@Url.Action("Create", "CLPAttendance")" id="btnAdd" style="margin-left: 10px;"><span class="glyphicon glyphicon-plus"></span> Add</a>
+                @*<button type="button" class="btn btn-default" id="btnAdd" style="margin-left: 10px;"><span class="glyphicon glyphicon-plus"></span> Add</button>*@
+                <button type="button" class="btn btn-default" id="btnEdit" style="margin-left: 10px;"><span class="glyphicon glyphicon-pencil"></span> Edit</button>
+                <button type="button" class="btn btn-default" id="btnDelete" style="margin-left: 10px;"><span class="glyphicon glyphicon-trash"></span> Delete</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- /. ROW  -->
+<hr style="margin-top: 10px;" />
+
+<div class="col-md-12">
+    <div id="divAttendanceTable">
+    </div>
+</div>
+
+
+
+@section scripts{
+    <script type="text/javascript">
+        $(document).ready(function () {
+            GenerateTable();
+            $('#CLPAttendanceDataTable').DataTable();
+        });
+
+        function GenerateTable() {
+            $('#modalLoad').modal("show");
+            $.ajax({
+                url: '@Url.Action("AttendanceList", "CLPAttendance")',
+                type: "GET",
+                success: function (result) {
+                    $('#modalLoad').modal("hide");
+                    if (result.status) {
+                        $('#divAttendanceTable').html(result.data);
+                    } else {
+                        $('#divAttendanceTable').html("<p style=\"text-align:center\">" + result.msg + "</p>");
+                    }
+                    $('.modal-backdrop').remove();
+                    $('#CLPAttendanceDataTable').DataTable();
+                },
+                error: function () {
+                }
+            });
+        }
+
+
+        //--------------modify-------------
+        $('#btnEdit').on("click", function (e) {
+            $('#modalLoad').modal("show");
+            var Id = $('#bId').val();
+            if (!Id) {
+                swal({ title: "No Item selected!", text: "Please select from the list!", type: "warning" });
+                $('#modalLoad').modal("hide");
+                return false;
+            } else {
+                $('#AddEdit').modal("show");
+                $('#lblTitle').html("<span class=\"glyphicon glyphicon-pencil\"></span> Edit Branch");
+                $.ajax({
+                    //url: '@Url.Action("Edit", "InvBranch")',
+                    type: "GET",
+                    data: { id: Id },
+                    success: function (result) {
+                        $('#modalLoad').modal("hide");
+                        if (result.status) {
+                            $('#branchId').val(result.data[0].branchID);
+                            $('#branchName').val(result.data[0].name);
+                            $('#branchAdd').val(result.data[0].address);
+                            $('#phone').val(result.data[0].phone);
+                            $('#phone2').val(result.data[0].phone2);
+
+                        } else {
+                            $('#divBranchTable').html("<p style=\"text-align:center\">" + result.msg + "</p>");
+                        }
+                    },
+                    error: function () {
+                        alert('test2');
+                    }
+                });
+            }
+         });
+        //------------------
+
+        //Save Modal form
+        $('#btnSave').on("click", function () {
+            $('#modalLoad').modal("show");
+            var model =  {
+                branchID: $('#branchId').val(),
+                name: $('#branchName').val(),
+                address: $('#branchAdd').val(),
+                phone: $('#phone').val(),
+                phone2: $('#phone2').val()
+            };
+            $.ajax({
+                //url: '@Url.Action("Edit", "InvBranch")',
+                type: "POST",
+                data: { model: model },
+                success: function (result) {
+                    $('#modalLoad').modal("hide");
+                    if (result.status) {
+                        swal({ title: "Success!", text: result.msg, type: "Success" });
+                        GenerateTable();
+                    } else {
+                        swal({ title: "Warning!", text: result.msg, type: "warning" });
+                    }
+                },
+            });
+        });
+        //--------------------
+        //Delete
+        $('#btnDelete').on("click", function (e) {
+            var id = $('#bId').val();
+            if (!id) {
+                swal({ title: "Delete!", text: "Please select Branch to delete!", type: "warning" });
+                return false;
+            }
+            else {
+                $.ajax({
+                    //url: '@Url.Action("Delete", "InvBranch")',
+                    type: "POST",
+                    data: { id: id },
+                    success: function (result) {
+                        $('#modalLoad').modal("hide");
+                        if (result.status) {
+                            swal({ title: "Deleted!", text: "Successfuly deleted!", type: "success" });
+                            GenerateTable();
+                        } else {
+                            swal({ title: "Warning!", text: result.msg, type: "warning" });
+                        }
+                    },
+                });
+            }
+        });
+        //-------------------
+
+        $(document).on("click", "#divBranchTable tr", function (e) {
+            var arr = $('#branchDataTable').dataTable().fnGetData($(this));
+            var Id = arr[0];
+            POid1 = Id;
+            $('#bId').val(Id);
+
+            if ($(this).hasClass('active')) {
+                $(this).removeClass('active');
+                $('#bId').val(0);
+            } else {
+                $(this).addClass('active').siblings().removeClass('active');
+            }
+        });
+
+        $(document).on("dblclick", "#divBranchTable tr", function (e) {
+            var arr = $('#branchDataTable').dataTable().fnGetData($(this));
+            var Id = arr[0];
+            $('#AddEdit').modal("show");
+            $('#lblTitle').html("<span class=\"glyphicon glyphicon-pencil\"></span> Edit Branch");
+            $.ajax({
+                //url: '@Url.Action("Edit", "InvBranch")',
+                type: "GET",
+                data: { id: Id },
+                success: function (result) {
+                    $('#modalLoad').modal("hide");
+                    if (result.status) {
+                        $('#branchId').val(result.data[0].branchID);
+                        $('#branchName').val(result.data[0].name);
+                        $('#branchAdd').val(result.data[0].address);
+                        $('#phone').val(result.data[0].phone);
+                        $('#phone2').val(result.data[0].phone2);
+
+                    } else {
+                        $('#divBranchTable').html("<p style=\"text-align:center\">" + result.msg + "</p>");
+                    }
+                },
+                error: function () {
+                    alert('test2');
+                }
+            });
+
+            //location.href = "InvBranch/Edit?id=" + Id;
+
+        });
+
+
+
+
+
+    </script>
+}

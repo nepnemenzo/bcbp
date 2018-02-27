@@ -1,0 +1,176 @@
+﻿
+@{
+    ViewBag.Title = "Client list";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    h3 {
+        color: red;
+    }
+</style>
+<div class="row">
+    <div class="col-xs-6">
+        <h3 style="margin-top:0px">Clients List</h3>
+    </div>
+    <div class="col-xs-6">
+        <div class="row pull-right" style="margin-right:0px">
+            <div>
+                <button type="button" class="btn btn-success" id="btnAdd" style="margin-left: 10px;"><span class="glyphicon glyphicon-plus"></span> Add</button>
+                <button type="button" class="btn btn-warning" id="btnEdit" style="margin-left: 10px;"><span class="glyphicon glyphicon-pencil"></span> Edit</button>
+                <button type="button" class="btn btn-danger" id="btnDelete" style="margin-left: 10px;"><span class="glyphicon glyphicon-trash"></span> Delete</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- /. ROW  -->
+<hr style="margin-top: 10px;" />
+
+<div class="col-md-12">
+    <div id="divClientTable">
+    </div>
+</div>
+
+@section scripts{
+    <script type="text/javascript">
+        $(document).ready(function () {
+            GenerateTable();
+            $('#ClientTable').DataTable();
+        });
+
+        function GenerateTable() {
+            $('#modalLoad').modal("show");
+            $.ajax({
+                url: '@Url.Action("GetClientList", "InvClient")',
+                type: "GET",
+                success: function (result) {
+                    $('#modalLoad').modal("hide");
+                    if (result.status) {
+                        $('#divClientTable').html(result.data);
+                    } else {
+                        $('#divClientTable').html("<p style=\"text-align:center\">" + result.msg + "</p>");
+                    }
+                    $('.modal-backdrop').remove();
+                    $('#ClientTable').DataTable();
+                },
+                error: function () {
+
+                }
+            });
+        }
+
+        $(document).on("click", "#ClientTable tr", function (e) {
+
+            var arr = $('#ClientTable').dataTable().fnGetData($(this));
+            var Id = arr[0];
+            $('#Number').val(Id);
+            if ($(this).hasClass('active')) {
+                $(this).removeClass('active');
+                $('#Number').val(0);
+            } else {
+                $(this).addClass('active').siblings().removeClass('active');
+            }
+        });
+
+        $('#btnEdit').on("click", function () {
+            var id = $('#Number').val();
+            if (id == 0) {
+                swal({ title: "Update!", text: "Please select category to update!", type: "warning" });
+                return false;
+            }
+            $('#modalLoad').modal("show");
+            $.ajax({
+                url: '@Url.Action("GetUnitInfo", "InvUnit")',
+                data: { id: $('#Number').val() },
+                type: "POST",
+                success: function (result) {
+                    $('#modalLoad').modal("hide");
+                    if (result.status) {
+                        $('#Code').val(result.data.Code);
+                        $('#Number').val(result.data.Number);
+                        $('#Description1').val(result.data.Description1);
+                        $('#Description2').val(result.data.Description2);
+                    } else {
+                        swal({ title: "Warning!", text: "Something went wrong!", type: "warning" });
+                    }
+
+                    //for (var i in result.data) {
+                    //    $('#catName').val(result.data[i].catName);
+                    //    $('#catID').val(result.data[i].catID);
+                    //    $('#catDescription').val(result.data[i].catDescription);
+                    //}
+                    $('#AddEdit').modal("show");
+                },
+            });
+        })
+
+        $('#btnDelete').on("click", function () {
+            var id = $('#Number').val();
+            if (!id) {
+                swal({ title: "Delete!", text: "Please select category to delete!", type: "warning" });
+                return false;
+            }
+            swal({ title: "Deleted!", text: "Successfuly deleted!", type: "success" });
+
+        })
+
+        $("#btnAdd").click(function () {
+            $('#frmUsr')[0].reset();
+            $('#UserTable tr').removeClass('active');
+            $('#Number').val(0);
+            $('#AddEdit').modal("show");
+        });
+
+        $("#frmUsr").on('submit', (function (e) {
+            e.preventDefault();
+            $('#AddEdit').modal("hide");
+            $('#modalLoad').modal("show");
+            $.ajax({
+                url: $(this).attr('action'),
+                type: $(this).attr('method'),
+                data: new FormData(this),
+                contentType: false,
+                cache: false,
+                processData: false,
+                success: function (data) {
+                    $('#modalLoad').modal("hide");
+                    if (data.status) {
+                        swal({ title: "Success!", text: data.msg, type: "success" });
+                    } else {
+                        swal({ title: "Warning!", text: "Something went wrong!", type: "warning" });
+                    }
+                    GenerateTable();
+                },
+                error: function (jqXHR, exception) {
+                    $('#modalLoad').modal("hide");
+                    var errmsg = '';
+                    if (jqXHR.status === 0) {
+                        errmsg = 'Not connect.\n Verify Network.';
+                        alert(errmsg);
+                    } else if (jqXHR.status == 404) {
+                        errmsg = 'Requested page not found. [404]';
+                        alert(errmsg);
+                    } else if (jqXHR.status == 500) {
+                        errmsg = 'Internal Server Error [500].';
+                        alert(errmsg);
+                    } else if (exception === 'parsererror') {
+                        errmsg = 'Requested JSON parse failed.';
+                        alert(errmsg);
+                    } else if (exception === 'timeout') {
+                        errmsg = 'Time out error.';
+                        alert(errmsg);
+                    } else if (exception === 'abort') {
+                        errmsg = 'Ajax request aborted.';
+                        alert(errmsg);
+                    } else {
+                        errmsg = 'Uncaught Error.\n' + jqXHR.responseText;
+                        alert(errmsg);
+                    }
+                }
+            });
+        }));
+
+    </script>
+}
+
+

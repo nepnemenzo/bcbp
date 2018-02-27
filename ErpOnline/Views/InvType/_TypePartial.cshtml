@@ -1,0 +1,38 @@
+﻿@model IEnumerable<ErpOnline.Models.InvTypeViewModel>
+
+
+<div>
+    <table id="TypeTable" class="table table-bordered table-hover table-responsive table-striped" style="border:0px">
+        <thead>
+            <tr>
+                <th width="100">
+                    ID
+                </th>
+                <th>
+                    Type Name
+                </th>
+                <th>
+                    Type Description
+                </th>
+            </tr>
+        </thead>
+
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr data-id="@Html.DisplayFor(modelItem => item.Number)">
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Number)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.TypeName)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Description)
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+

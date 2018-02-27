@@ -1,0 +1,84 @@
+﻿
+@{
+    ViewBag.Title = "ERP Login";
+    Layout = "~/Views/Shared/_LoginLayout.cshtml";
+}
+
+<div class="container">
+    <div class="col-md-4 col-md-offset-4 default-wd">
+        <div class="mg-top">
+
+            <form id="form_login" action="@Url.Action("Login","Account")" method="post">
+                @Html.AntiForgeryToken()
+                <div class="imgcontainer">
+                    <img src="~/Images/img_avatar2.png" alt="Avatar" class="avatar">
+                </div>
+                <h3 style="text-align:center">My Company Name</h3>
+                <hr style="margin-top:5px; margin-bottom:5px;" />
+                <div class="container">
+                    <label>Username</label>
+                    <input type="text" placeholder="Enter Username" name="UserName" required>
+
+                    <label><b>Password</b></label>
+                    <input type="password" placeholder="Enter Password" name="UserPaswr" required>
+
+                    <button type="submit">Login</button>
+                    <input type="checkbox" checked="checked"> Remember me
+                </div>
+            </form>
+
+        </div>
+    </div>
+</div>
+@section scripts{
+    <script type="text/javascript">
+        $("#form_login").on('submit', (function (e) {
+            e.preventDefault();
+            $('#modalLoad').modal("show");
+            $.ajax({
+                url: $(this).attr('action'),
+                type: $(this).attr('method'),
+                data: new FormData(this),
+                contentType: false,
+                cache: false,
+                processData: false,
+                success: function (data) {
+                    if (data.status) {
+                        window.location = data.url;
+                    } else {
+                        $('#modalLoad').modal("hide");
+                        swal({ title: "Login!", text: data.msg, type: "warning" });
+                    }
+                },
+                error: function (jqXHR, exception) {
+                    $('#modalLoad').hide();
+                    var errmsg = '';
+                    if (jqXHR.status === 0) {
+                        errmsg = 'Not connect.\n Verify Network.';
+                        alert(errmsg);
+                    } else if (jqXHR.status == 404) {
+                        errmsg = 'Requested page not found. [404]';
+                        alert(errmsg);
+                    } else if (jqXHR.status == 500) {
+                        errmsg = 'Internal Server Error [500].';
+                        alert(errmsg);
+                    } else if (exception === 'parsererror') {
+                        errmsg = 'Requested JSON parse failed.';
+                        alert(errmsg);
+                    } else if (exception === 'timeout') {
+                        errmsg = 'Time out error.';
+                        alert(errmsg);
+                    } else if (exception === 'abort') {
+                        errmsg = 'Ajax request aborted.';
+                        alert(errmsg);
+                    } else {
+                        errmsg = 'Uncaught Error.\n' + jqXHR.responseText;
+                        alert(errmsg);
+                    }
+                }
+            });
+        }));
+    </script>
+}
+
+

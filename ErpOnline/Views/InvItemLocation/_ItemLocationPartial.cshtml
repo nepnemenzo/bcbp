@@ -1,0 +1,39 @@
+﻿@model IEnumerable<ErpOnline.Models.InvItemLocationViewModel>
+
+<div>
+    <table id="ItemLocationTable" class="table table-bordered table-hover table-responsive table-striped" style="border:0px">
+        <thead>
+            <tr>
+                <th width="100">
+                    ID
+                </th>
+                <th>
+                    Location Name
+                </th>
+                <th>
+                    Location Description
+                </th>
+            </tr>
+        </thead>
+
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr data-id="@Html.DisplayFor(modelItem => item.locID)">
+                    <td>
+                        @Html.DisplayFor(modelItem => item.locID)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.locName)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.locDescription)
+                    </td>
+
+                </tr>
+            }
+        </tbody>
+
+    </table>
+</div>
+

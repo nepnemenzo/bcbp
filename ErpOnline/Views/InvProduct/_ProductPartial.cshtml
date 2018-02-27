@@ -1,0 +1,57 @@
+﻿@model IEnumerable<ErpOnline.Models.listProductResponse>
+
+<div>
+    <table id="ProductTable" class="table table-bordered table-hover table-responsive table-striped" style="border:0px;">
+        <thead>
+            <tr>
+                <th style="width:50px; text-align:center">Code</th>
+                <th style="text-align:center">Name</th>
+                <th style="text-align:center">Description</th>
+                <th style="width:30px; text-align:center">Unit</th>
+                <th style="width:50px; text-align:center">Qty On Hand</th>
+                <th style="width:50px; text-align:center">Reserved</th>
+                <th style="width:50px; text-align:center">Qty Available</th>
+                
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr id="@item.id">
+                    <td>
+                        @item.code
+                    </td>
+                    <td>
+                        @item.name
+                    </td>
+                    <td>    
+                        @item.description
+                    </td>
+                    <td>
+                        @item.unit
+                    </td>
+                    <td style="text-align: right">
+                        @item.qtOnhand
+                    </td>
+                    <td style="text-align: right">
+                       @formatQty(item.qtyreserved)
+                        @*@item.qtyreserved*@
+                    </td>
+                    <td style="text-align: right; font-weight:bold">
+                        @item.qtyAvailable
+                    </td>
+                </tr>
+            }
+            @helper formatQty(decimal qty) { 
+                    var color = "black";
+                    var fontWeight = "normal";
+                    if(qty > 0)
+                    {
+                        color = "red";
+                            fontWeight = "bold";
+                    }
+                    <span style="color: @color; font-weight:@fontWeight">@qty</span>
+             }
+        </tbody>
+    </table>
+</div>
